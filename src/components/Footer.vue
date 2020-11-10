@@ -13,4 +13,9 @@
 export default {};
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.footer {
+  margin-top: 120px;
+  border: solid white 2px;
+}
+</style>

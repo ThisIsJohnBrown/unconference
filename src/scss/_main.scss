@@ -6,13 +6,24 @@ $scheme-invert-bis: hsl(0, 0%, 98%);
 $scheme-invert-ter: hsl(0, 0%, 95%);
 $text: hsl(0, 0%, 100%);
 
-$footer-background-color: $scheme-invert;
-$footer-color: $scheme-main;
+$footer-background-color: $scheme-main;
+$footer-color: $scheme-invert;
 
 $card-color: $scheme-invert;
 $card-background-color: $scheme-main;
 $card-radius: none;
 $card-shadow: none;
 
+$box-color: $scheme-invert;
+$box-background-color: $scheme-main;
+$box-radius: none;
+$box-shadow: none;
+
 @import "./_bulma.scss";
 @import "./_variables.scss";
+
+#app {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
