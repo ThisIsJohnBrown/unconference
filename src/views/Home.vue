@@ -1,53 +1,16 @@
 <template>
   <div class="section is-max-desktop">
-    <h2 class="is-size-2">Sessions</h2>
-    <div class="container">
-      <div class="columns">
-        <div class="column" v-for="(session, i) in sessions" v-bind:key="i">
-          <div class="card">
-            <router-link
-              :to="{ name: 'Session', params: { slug: session.slug } }"
-            >
-              <header>
-                <p class="card-header-title has-text-white is-size-4">
-                  {{ session.title }}
-                </p>
-              </header>
-            </router-link>
-            <div class="card-content">
-              <div class="content">
-                <p class="block">
-                  {{ session.details }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <h2 class="is-size-2 has-text-centered">Sessions</h2>
+    <Sessions />
   </div>
 </template>
 
 <script>
+import Sessions from "@/components/Sessions";
 export default {
   name: "Home",
-  components: {},
-  computed: {
-    sessions() {
-      if (this.$store.state.sessions) {
-        return [...this.$store.state.sessions].splice(0, 3);
-      }
-      return [];
-    }
-  }
+  components: { Sessions }
 };
 </script>
 
-<style lang="scss" scoped>
-.card {
-  border: solid white 2px;
-  header {
-    border-bottom: solid white 2px;
-  }
-}
-</style>
+<style lang="scss" scoped></style>
