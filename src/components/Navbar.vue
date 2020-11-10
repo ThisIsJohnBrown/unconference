@@ -41,9 +41,7 @@
   </nav>
 </template>
 
-<script>
-console.log("aasdf");
-</script>
+<script></script>
 
 <style lang="scss" scoped>
 .logo {

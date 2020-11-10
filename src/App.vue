@@ -7,7 +7,6 @@
 
 <script>
 import Navbar from "@/components/Navbar";
-console.log(Navbar);
 export default {
   components: {
     Navbar
