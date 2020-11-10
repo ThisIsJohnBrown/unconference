@@ -13,6 +13,9 @@ export default {
   components: {
     Navbar,
     Footer
+  },
+  created() {
+    this.$store.dispatch("bindSessions");
   }
 };
 </script>

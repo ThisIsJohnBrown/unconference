@@ -9,5 +9,10 @@ $text: hsl(0, 0%, 100%);
 $footer-background-color: $scheme-invert;
 $footer-color: $scheme-main;
 
+$card-color: $scheme-invert;
+$card-background-color: $scheme-main;
+$card-radius: none;
+$card-shadow: none;
+
 @import "./_bulma.scss";
 @import "./_variables.scss";
