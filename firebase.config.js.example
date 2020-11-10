@@ -1,0 +1,13 @@
+// You will need your own instance of Firebase Firestore, and you can put
+// your credentials here!
+
+export const config = {
+  apiKey: "",
+  authDomain: "",
+  databaseURL: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+  measurementId: ""
+};
