@@ -1,0 +1,10 @@
+$scheme-main: hsl(0, 0%, 4%);
+$scheme-main-bis: hsl(0, 0%, 7%);
+$scheme-main-ter: hsl(0, 0%, 14%);
+$scheme-invert: hsl(0, 0%, 100%);
+$scheme-invert-bis: hsl(0, 0%, 98%);
+$scheme-invert-ter: hsl(0, 0%, 95%);
+$text: hsl(0, 0%, 100%);
+
+@import "./_bulma.scss";
+@import "./_variables.scss";
