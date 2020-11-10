@@ -6,5 +6,10 @@ $scheme-invert-bis: hsl(0, 0%, 98%);
 $scheme-invert-ter: hsl(0, 0%, 95%);
 $text: hsl(0, 0%, 100%);
 
+$card-color: $scheme-invert;
+$card-background-color: $scheme-main;
+$card-radius: none;
+$card-shadow: none;
+
 @import "./_bulma.scss";
 @import "./_variables.scss";
