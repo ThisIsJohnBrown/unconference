@@ -13,4 +13,27 @@ const auth = firebase.auth();
 
 db.settings({ timestampsInSnapshots: true });
 
-export { auth, db, TimeStamp };
+const googleLogin = () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase
+    .auth()
+    .signInWithPopup(provider)
+    .then(function(result) {
+      console.log(result);
+    })
+    .catch(function(error) {
+      console.error(error.message);
+    });
+};
+
+const logout = () => {
+  firebase
+    .auth()
+    .signOut()
+    .then(function() {})
+    .catch(function(error) {
+      console.error(error.message);
+    });
+};
+
+export { auth, db, TimeStamp, googleLogin, logout };

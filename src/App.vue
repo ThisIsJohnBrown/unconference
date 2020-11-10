@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import { auth } from "@/firebase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 export default {
@@ -18,6 +19,20 @@ export default {
   },
   created() {
     this.$store.dispatch("bindSessions");
+  },
+  mounted() {
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        this.$store.commit({
+          type: "loginUser",
+          user
+        });
+      } else {
+        this.$store.commit({
+          type: "logoutUser"
+        });
+      }
+    });
   }
 };
 </script>

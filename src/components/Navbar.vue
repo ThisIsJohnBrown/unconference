@@ -19,20 +19,20 @@
     </div>
 
     <div id="navbarBasicExample" class="navbar-menu">
-      <div class="navbar-start">
-        <router-link class="navbar-item" :to="{ name: 'Home' }"
-          >Home</router-link
-        >
-      </div>
+      <div class="navbar-start"></div>
 
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
-            <router-link :to="{ name: 'Home' }" class="button is-black">
-              Sign up
-            </router-link>
-            <a class="button is-black">
+            <a
+              class="button is-black"
+              @click.prevent="googleLogin"
+              v-if="!isAuthenticated"
+            >
               Log in
+            </a>
+            <a v-else class="button is-black" @click.prevent="logout">
+              Log out
             </a>
           </div>
         </div>
@@ -41,7 +41,22 @@
   </nav>
 </template>
 
-<script></script>
+<script>
+import { googleLogin, logout } from "@/firebase";
+
+export default {
+  name: "Navbar",
+  methods: {
+    logout,
+    googleLogin
+  },
+  computed: {
+    isAuthenticated() {
+      return this.$store.state.user?.uid;
+    }
+  }
+};
+</script>
 
 <style lang="scss" scoped>
 .logo {

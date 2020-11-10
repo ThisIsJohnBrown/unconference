@@ -7,9 +7,18 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    sessions: {}
+    sessions: {},
+    user: {}
   },
-  mutations: { ...vuexfireMutations },
+  mutations: {
+    ...vuexfireMutations,
+    loginUser(state, payload) {
+      state.user = payload.user;
+    },
+    logoutUser(state) {
+      state.user = {};
+    }
+  },
   actions: {
     bindSessions: firestoreAction(({ bindFirestoreRef }) => {
       console.log("asdasdf");
