@@ -11,7 +11,10 @@
         v-bind:key="i"
       >
         <div class="column" v-for="(session, j) in sessionChunk" v-bind:key="j">
-          <SessionInfoCard v-bind:session="session" />
+          <SessionInfoCard
+            v-bind:session="session"
+            v-bind:creator="sessionCreators[session.created_by]"
+          />
         </div>
       </div>
     </div>
@@ -24,6 +27,16 @@ import { chunk } from "@/helpers";
 export default {
   name: "Sessions",
   computed: {
+    sessionCreators() {
+      if (this.$store.state.sessionCreators) {
+        return this.$store.state.sessionCreators.reduce((acc, curr) => {
+          console.log(acc, curr.id);
+          acc[curr.id] = curr;
+          return acc;
+        }, {});
+      }
+      return this.$store.state.sessionCreators;
+    },
     sessions() {
       const now = new Date();
       const times = [
@@ -50,7 +63,6 @@ export default {
           sessionGroup: chunk(group.sessions, 3)
         };
       });
-      console.log(filteredSessionList);
       return {
         all: filteredSessionList,
         expired: filteredSessionList.filter(

@@ -22,4 +22,8 @@ const chunk = (arr, size) =>
     arr.slice(i * size, i * size + size)
   );
 
-export { string_to_slug, chunk };
+const unique = (value, index, self) => {
+  return self.indexOf(value) === index;
+};
+
+export { string_to_slug, chunk, unique };

@@ -1,19 +1,41 @@
 <template>
   <div v-bind:class="headerClasses">
-    <router-link :to="{ name: 'Session', params: { slug: session.slug } }">
-      <header>
-        <p class="card-header-title has-text-white is-size-4">
+    <header @click="toggleOpenCard">
+      <div class="card-header-title">
+        <h2 class="title has-text-white is-size-4">
           {{ session.title }}
-        </p>
-      </header>
-    </router-link>
-    <div class="card-content">
+        </h2>
+      </div>
+    </header>
+    <div class="card-content" v-if="cardIsOpen">
       <div class="content">
-        <p class="block">
-          {{ session.details }}
-        </p>
+        <p class="is-4">Created by {{ creator.displayName }}</p>
+        <p>1:30pm-2:00pm</p>
+        <p>{{ session.details }}</p>
+        <div class="tags">
+          <span class="tag is-white">Tag1</span
+          ><span class="tag is-white">Longer Tag</span
+          ><span class="tag is-white">Just another tag</span>
+        </div>
       </div>
     </div>
+    <footer class="card-footer" v-if="cardIsOpen">
+      <a href="#" class="card-footer-item has-text-white">
+        <i class="fas fa-calendar-plus"></i>
+        <span class="ml-2">Add to agenda</span>
+      </a>
+      <router-link
+        class="card-footer-item has-text-white"
+        :to="{ name: 'Session', params: { slug: session.slug } }"
+      >
+        <i class="fas fa-users"></i>
+        <span class="ml-2">Go to session</span>
+      </router-link>
+      <a href="#" class="card-footer-item has-text-white">
+        <i class="fas fa-flag"></i>
+        <span class="ml-2">Report</span>
+      </a>
+    </footer>
   </div>
 </template>
 
@@ -27,8 +49,14 @@ const backgroundMap = {
 backgroundMap;
 export default {
   name: "SessionInfoCard",
+  methods: {
+    toggleOpenCard() {
+      this.cardIsOpen = !this.cardIsOpen;
+    }
+  },
   data: function() {
     return {
+      cardIsOpen: false,
       headerClasses: {
         card: true,
         "m-1": true,
@@ -36,7 +64,7 @@ export default {
       }
     };
   },
-  props: ["session"]
+  props: ["session", "creator"]
 };
 </script>
 
@@ -46,6 +74,7 @@ export default {
 .card {
   header {
     border-bottom: solid white 2px;
+    cursor: pointer;
   }
   box-shadow: 0 0 0 3px black;
   border: solid white 2px;

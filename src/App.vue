@@ -19,6 +19,7 @@ export default {
   },
   created() {
     this.$store.dispatch("bindSessions");
+    this.$store.dispatch("bindSessionCreators");
   },
   mounted() {
     auth.onAuthStateChanged(user => {
