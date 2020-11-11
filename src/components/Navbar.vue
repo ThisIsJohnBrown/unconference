@@ -31,13 +31,13 @@
             >
               Register!
             </router-link>
-            <a
+            <router-link
               class="button is-black"
-              @click.prevent="googleLogin"
+              :to="{ name: 'Login' }"
               v-if="!isAuthenticated"
             >
               Log in
-            </a>
+            </router-link>
             <a v-else class="button is-black" @click.prevent="logout">
               Log out
             </a>
@@ -49,13 +49,12 @@
 </template>
 
 <script>
-import { googleLogin, logout } from "@/firebase";
+import { logout } from "@/firebase";
 
 export default {
   name: "Navbar",
   methods: {
-    logout,
-    googleLogin
+    logout
   },
   computed: {
     isAuthenticated() {
