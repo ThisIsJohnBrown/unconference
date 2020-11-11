@@ -73,7 +73,8 @@ export default {
         parentNode: document.querySelector(".jitsi-block"),
         configOverwrite: {
           startWithAudioMuted: true,
-          startWithVideoMuted: true
+          startWithVideoMuted: true,
+          prejoinPageEnabled: false
         },
         interfaceConfigOverwrite: {
           TOOLBAR_BUTTONS: [
