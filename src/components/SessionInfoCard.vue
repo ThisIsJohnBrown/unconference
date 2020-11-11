@@ -47,6 +47,7 @@ export default {
   header {
     border-bottom: solid white 2px;
   }
+  box-shadow: 0 0 0 3px black;
   border: solid white 2px;
   overflow: initial;
 
@@ -85,6 +86,12 @@ export default {
   &.is-solid {
     &::after {
       @include is-solid;
+    }
+  }
+
+  &.is-boxes {
+    &::after {
+      @include is-boxes;
     }
   }
 
