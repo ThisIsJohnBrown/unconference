@@ -24,6 +24,13 @@
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
+            <router-link
+              class="button is-black"
+              :to="{ name: 'Register' }"
+              v-if="!isAuthenticated"
+            >
+              Register!
+            </router-link>
             <a
               class="button is-black"
               @click.prevent="googleLogin"

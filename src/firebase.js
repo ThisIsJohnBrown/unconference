@@ -13,27 +13,30 @@ const auth = firebase.auth();
 
 db.settings({ timestampsInSnapshots: true });
 
-const googleLogin = () => {
+const register = async data => {
+  try {
+    const user = await firebase
+      .auth()
+      .createUserWithEmailAndPassword(data.email, data.password);
+    return {
+      success: true,
+      data: user
+    };
+  } catch (error) {
+    return {
+      success: false,
+      data: { error }
+    };
+  }
+};
+
+const googleLogin = async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
-  firebase
-    .auth()
-    .signInWithPopup(provider)
-    .then(function(result) {
-      console.log(result);
-    })
-    .catch(function(error) {
-      console.error(error.message);
-    });
+  return await firebase.auth().signInWithPopup(provider);
 };
 
 const logout = () => {
-  firebase
-    .auth()
-    .signOut()
-    .then(function() {})
-    .catch(function(error) {
-      console.error(error.message);
-    });
+  firebase.auth().signOut();
 };
 
-export { auth, db, TimeStamp, googleLogin, logout };
+export { auth, db, TimeStamp, googleLogin, logout, register };

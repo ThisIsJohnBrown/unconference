@@ -1,14 +1,21 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import { vuexfireMutations, firestoreAction } from "vuexfire";
-import { auth, db } from "../firebase";
-import { string_to_slug } from "@/helpers";
+import { db } from "../firebase";
+import {
+  addSession,
+  bindSession,
+  bindSessionCreator,
+  deleteSession,
+  updateSession
+} from "./sessionActions";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     sessions: {},
+    session: {},
     user: {}
   },
   mutations: {
@@ -22,24 +29,22 @@ export default new Vuex.Store({
   },
   actions: {
     bindSessions: firestoreAction(({ bindFirestoreRef }) => {
-      console.log("asdasdf");
       return bindFirestoreRef(
         "sessions",
         db.collection("sessions").orderBy("startTime")
       );
     }),
-    addSession: firestoreAction(async (context, payload) => {
+    bindSession: firestoreAction(async ({ bindFirestoreRef }, slug) => {
       try {
-        const uid = auth.currentUser.uid;
-        return await db.collection("sessions").add({
-          ...payload,
-          slug: `${string_to_slug(payload.title)}-${uid.slice(0, 6)}`,
-          created_by: uid
-        });
+        const session = await bindSession(bindFirestoreRef, slug);
+        await bindSessionCreator(bindFirestoreRef, session[0].created_by.user);
       } catch (error) {
-        console.warn(error.message);
+        console.error(error.message);
       }
-    })
+    }),
+    addSession: firestoreAction((c, p) => addSession(c, p)),
+    updateSession: firestoreAction((c, p) => updateSession(c, p)),
+    deleteSession: firestoreAction((c, p) => deleteSession(c, p))
   },
   modules: {}
 });
