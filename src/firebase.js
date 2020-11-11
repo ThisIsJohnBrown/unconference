@@ -35,8 +35,20 @@ const googleLogin = async () => {
   return await firebase.auth().signInWithPopup(provider);
 };
 
+const emailPasswordLogin = async data => {
+  return firebase.auth().signInWithEmailAndPassword(data.email, data.password);
+};
+
 const logout = () => {
   firebase.auth().signOut();
 };
 
-export { auth, db, TimeStamp, googleLogin, logout, register };
+export {
+  auth,
+  db,
+  TimeStamp,
+  googleLogin,
+  emailPasswordLogin,
+  logout,
+  register
+};

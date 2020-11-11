@@ -3,10 +3,10 @@
     <section class="section is-max-desktop">
       <div class="container">
         <h2 class="is-size-1 mb-6">
-          Sign up for an account!
+          Log in to your account
         </h2>
         <div>
-          <form @submit.prevent="registerUser">
+          <form @submit.prevent="loginEmailPassword">
             <input
               class="input  is-size-3"
               type="email"
@@ -20,7 +20,7 @@
               v-model="password"
             />
             <button class="button is-size-3">
-              Register
+              Login
             </button>
           </form>
           <p class="has-text-danger is-size-3">{{ error }}</p>
@@ -28,9 +28,9 @@
         <h2 class="is-size-1 has-text-right mb-6">Or</h2>
         <button
           class="button is-size-3 is-pulled-right"
-          @click="registerWithGoogle()"
+          @click="loginWithGoogle()"
         >
-          Register with Google
+          Login with Google
         </button>
       </div>
     </section>
@@ -38,9 +38,9 @@
 </template>
 
 <script>
-import { register, googleLogin } from "@/firebase";
+import { emailPasswordLogin, googleLogin } from "@/firebase";
 export default {
-  name: "Register",
+  name: "Login",
   data: function() {
     return {
       email: "",
@@ -49,15 +49,15 @@ export default {
     };
   },
   methods: {
-    async registerWithGoogle() {
+    async loginWithGoogle() {
       const data = await googleLogin();
       if (data.user.uid) {
         this.$router.push({ name: "Home" });
       }
     },
-    async registerUser() {
+    async loginEmailPassword() {
       try {
-        const details = await register({
+        const details = await emailPasswordLogin({
           email: this.email,
           password: this.password
         });
