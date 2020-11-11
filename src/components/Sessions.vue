@@ -26,8 +26,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.card {
-  border: solid white 2px;
-}
-</style>
+<style lang="scss" scoped></style>

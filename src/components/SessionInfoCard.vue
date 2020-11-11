@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card m-4">
     <router-link :to="{ name: 'Session', params: { slug: session.slug } }">
       <header>
         <p class="card-header-title has-text-white is-size-4">
@@ -24,7 +24,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-header {
-  border-bottom: solid white 2px;
+@import "@/scss/_backgrounds.scss";
+.card {
+  header {
+    border-bottom: solid white 2px;
+  }
+  border: solid white 2px;
+  overflow: initial;
+
+  &::after {
+    @include is-striped;
+    content: " ";
+    width: calc(100% + 2em);
+    height: calc(100% + 2em);
+    position: absolute;
+    top: -1em;
+    left: -1em;
+    z-index: -1;
+  }
 }
 </style>

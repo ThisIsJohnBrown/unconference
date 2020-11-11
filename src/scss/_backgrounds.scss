@@ -1,0 +1,25 @@
+@mixin is-zigzag {
+  background: linear-gradient(135deg, black 32%, transparent 32%) -15px 0,
+    linear-gradient(225deg, black 32%, transparent 32%) -15px 0,
+    linear-gradient(315deg, black 32%, transparent 32%),
+    linear-gradient(45deg, black 32%, transparent 32%);
+  background-size: 30px 30px;
+  background-color: white;
+  background-repeat: repeat;
+}
+
+@mixin is-dotted {
+  background: radial-gradient(white 4px, transparent 4px),
+    radial-gradient(white 4px, transparent 4px);
+  background-size: 100%, 16px 16px, 16px 16px, 100%;
+}
+
+@mixin is-striped {
+  background: repeating-linear-gradient(
+    45deg,
+    white,
+    white 4px,
+    black 4px,
+    black 20px
+  );
+}

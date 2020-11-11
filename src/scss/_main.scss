@@ -19,8 +19,22 @@ $box-background-color: $scheme-main;
 $box-radius: none;
 $box-shadow: none;
 
+$button-color: $scheme-invert;
+$button-hover-color: $scheme-invert;
+// $button-text-hover-color: $scheme-invert;
+
+$label-color: $scheme-invert;
+$radius: 0;
+$small-radius: 0;
+
+$input-color: $scheme-invert;
+$input-background-color: $scheme-main;
+$input-border-color: $scheme-invert;
+$input-shadow: none;
+
 @import "./_bulma.scss";
 @import "./_variables.scss";
+@import "./_backgrounds.scss";
 
 #app {
   display: flex;
