@@ -1,11 +1,21 @@
 <template>
-  <div v-bind:class="headerClasses">
+  <div v-bind:class="cardClasses">
     <header @click="toggleOpenCard">
       <div class="card-header-title">
         <h2 class="title has-text-white is-size-4">
           {{ session.title }}
         </h2>
       </div>
+
+      <span class="tag is-success is-starting-soon" v-if="isStartingSoon"
+        >Starting soon</span
+      >
+      <span class="tag is-warning is-starting-soon" v-else-if="isActive"
+        >Happening now</span
+      >
+      <span class="tag is-white is-starting-soon" v-else-if="isCompleted"
+        >Finished</span
+      >
     </header>
     <div class="card-content" v-if="cardIsOpen">
       <div class="content">
@@ -31,10 +41,6 @@
         <i class="fas fa-users"></i>
         <span class="ml-2">Go to session</span>
       </router-link>
-      <a href="#" class="card-footer-item has-text-white">
-        <i class="fas fa-flag"></i>
-        <span class="ml-2">Report</span>
-      </a>
     </footer>
   </div>
 </template>
@@ -54,10 +60,21 @@ export default {
       this.cardIsOpen = !this.cardIsOpen;
     }
   },
+  computed: {
+    isStartingSoon() {
+      return false;
+    },
+    isActive() {
+      return false;
+    },
+    isCompleted() {
+      return true;
+    }
+  },
   data: function() {
     return {
       cardIsOpen: false,
-      headerClasses: {
+      cardClasses: {
         card: true,
         "m-1": true,
         [`${backgroundMap[this.session.type]}`]: true
@@ -129,5 +146,11 @@ export default {
       @include is-dotted;
     }
   }
+}
+
+.is-starting-soon {
+  position: absolute;
+  top: -1rem;
+  right: 0px;
 }
 </style>
