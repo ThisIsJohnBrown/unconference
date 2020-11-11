@@ -17,4 +17,9 @@ const string_to_slug = str => {
   return str;
 };
 
-export { string_to_slug };
+const chunk = (arr, size) =>
+  Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+    arr.slice(i * size, i * size + size)
+  );
+
+export { string_to_slug, chunk };

@@ -33,7 +33,7 @@
             <div class="select">
               <select v-model="session.type">
                 <option value="presentation">Presentation</option>
-                <option value="discussion">Moderated Panel</option>
+                <option value="panel">Moderated Panel</option>
                 <option value="workshop">Workshop</option>
                 <option value="discussion">Open Discussion</option>
               </select>
@@ -63,7 +63,7 @@
     </section>
     <section class="section is-max-desktop">
       <div class="container">
-        <h2 class="is-size-1 has-text-right mb-6">Upcoming sessions</h2>
+        <h2 class="is-size-1 has-text-left mb-6">Upcoming sessions</h2>
         <Sessions />
       </div>
     </section>
