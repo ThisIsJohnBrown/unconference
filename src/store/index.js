@@ -67,7 +67,7 @@ export default new Vuex.Store({
     bindSession: firestoreAction(async ({ bindFirestoreRef }, slug) => {
       try {
         const session = await bindSession(bindFirestoreRef, slug);
-        await bindSessionCreator(bindFirestoreRef, session[0].created_by.user);
+        await bindSessionCreator(bindFirestoreRef, session[0].created_by);
       } catch (error) {
         console.error(error.message);
       }

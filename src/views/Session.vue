@@ -12,19 +12,21 @@
           </p>
         </div>
         <div class="tile is-child box">
-          <p class="block">Where</p>
-          <p class="block">all</p>
-          <p class="block">the</p>
-          <p class="block">controls</p>
-          <p class="block">will</p>
-          <p class="block">go</p>
-          <p class="block">eventually.</p>
-        </div>
-        <div class="tile is-child box">
-          <div v-if="!hasJoined">
+          <div>
             <div v-if="authenticated">
               <button v-if="isOwner" class="button" @click="startSession">
                 Start the session!
+              </button>
+              <button
+                class="button is-white"
+                v-for="participant in participants"
+                v-bind:key="participant.participantId"
+                @click.prevent="
+                  toggleVisibleParticipant(participant.participantId)
+                "
+              >
+                <i class="fas fa-calendar-plus"></i
+                ><span>{{ participant.displayName }}</span>
               </button>
               <button
                 v-if="!isOwner && isActive"
@@ -61,13 +63,46 @@ export default {
     return {
       slug: "another-jitsi-test",
       api: {},
-      hasJoined: false
+      hasJoined: false,
+      participants: [],
+      hiddenParticipantIds: []
     };
   },
   methods: {
+    initVisibleParticipants(id) {
+      this.$store.dispatch("updateSession", {
+        id: this.$store.state.session[0].id,
+        data: {
+          visible: [id]
+        }
+      });
+    },
+    addVisibleParticipant(id) {
+      this.$store.dispatch("updateSession", {
+        id: this.$store.state.session[0].id,
+        data: {
+          visible: [...this.$store.state.session[0].visible, id]
+        }
+      });
+    },
+    toggleVisibleParticipant(id) {
+      const visibleIds = [...this.visibleParticipants];
+      const index = visibleIds.indexOf(id);
+      if (index === -1) {
+        visibleIds.push(id);
+      } else {
+        visibleIds.splice(index, 1);
+      }
+      this.$store.dispatch("updateSession", {
+        id: this.$store.state.session[0].id,
+        data: {
+          visible: visibleIds
+        }
+      });
+    },
     initJitsi() {
       this.hasJoined = true;
-      const domain = "localhost:8080";
+      const domain = "localhost:8081";
       const options = {
         roomName: this.slug,
         parentNode: document.querySelector(".jitsi-block"),
@@ -93,11 +128,38 @@ export default {
             "tileview",
             "help"
           ]
+        },
+        userInfo: {
+          // email: this.$store.state.user.email,
+          displayName: this.$store.state.userDetails.username
         }
       };
 
       // eslint-disable-next-line
       this.api = new JitsiMeetExternalAPI(domain, options);
+      this.api.executeCommand(
+        "avatarUrl",
+        `https://robohash.org/${this.$store.state.userDetails.username}.png` // this.$store.state.userDetails?.avatar
+      );
+      this.api.executeCommand("toggleTileView");
+      this.api.addEventListener("participantJoined", e => {
+        this.participants = this.api.getParticipantsInfo();
+        this.api.executeCommand(
+          "toggleParticipant",
+          JSON.stringify({
+            ids: this.participants,
+            visible: this.visibleParticipants
+          })
+        );
+        e;
+      });
+      this.api.addEventListeners({
+        participantRoleChanged: e => {
+          if (e.role == "moderator" && this.visibleParticipants == []) {
+            this.initVisibleParticipants(e.id);
+          }
+        }
+      });
     },
     startSession() {
       this.$store.dispatch("updateSession", {
@@ -113,28 +175,29 @@ export default {
       this.initJitsi();
     }
   },
-  async created() {
+  async mounted() {
     this.slug = this.$route.params.slug;
     try {
       await this.$store.dispatch("bindSession", this.slug);
     } catch (error) {
       console.error(error.message);
     }
-  },
-  mounted() {
     if (this.isActive) {
-      this.initJitsi();
+      setTimeout(this.initJitsi, 500);
     }
   },
   computed: {
     session() {
       return this.$store.state.session[0];
     },
+    visibleParticipants() {
+      return this.$store.state.session[0]?.visible;
+    },
     authenticated() {
       return this.$store.state.user.uid;
     },
     isOwner() {
-      return this.session?.created_by.user === this.$store.state.user.uid;
+      return this.session?.created_by === this.$store.state.user.uid;
     },
     isActive() {
       return this.$store.state.session[0]?.active;
@@ -144,6 +207,18 @@ export default {
     isActive(newActive, oldActive) {
       if (newActive === true && oldActive !== newActive) {
         // setTimeout(this.initJitsi.bind(this), 500);
+      }
+    },
+    visibleParticipants(to) {
+      if (this.api) {
+        const ids = this.api.getParticipantsInfo().map(p => p.participantId);
+        this.api.executeCommand(
+          "toggleParticipant",
+          JSON.stringify({
+            ids,
+            visible: to
+          })
+        );
       }
     }
   }
