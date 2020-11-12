@@ -5,6 +5,7 @@ import store from "./store";
 import firebase from "firebase/app";
 
 Vue.config.productionTip = false;
+Vue.config.devtools = true; //process.env.NODE_ENV === 'development'
 
 let app;
 
@@ -25,5 +26,6 @@ firebase.auth().onAuthStateChanged(user => {
       store,
       render: h => h(App)
     }).$mount("#app");
+    window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue = app.constructor;
   }
 });

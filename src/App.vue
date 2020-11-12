@@ -28,6 +28,7 @@ export default {
           type: "loginUser",
           user
         });
+        this.$store.dispatch("bindUser", user.uid);
       } else {
         this.$store.commit({
           type: "logoutUser"

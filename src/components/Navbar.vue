@@ -23,22 +23,19 @@
 
       <div class="navbar-end">
         <div class="navbar-item">
-          <div class="buttons">
-            <router-link
-              class="button is-black"
-              :to="{ name: 'Register' }"
-              v-if="!isAuthenticated"
-            >
+          <div class="buttons" v-if="!isAuthenticated">
+            <router-link class="button is-black" :to="{ name: 'Register' }">
               Register!
             </router-link>
-            <router-link
-              class="button is-black"
-              :to="{ name: 'Login' }"
-              v-if="!isAuthenticated"
-            >
+            <router-link class="button is-black" :to="{ name: 'Login' }">
               Log in
             </router-link>
-            <a v-else class="button is-black" @click.prevent="logout">
+          </div>
+          <div v-else class="buttons">
+            <router-link class="button is-black" :to="{ name: 'Profile' }">
+              Profile
+            </router-link>
+            <a class="button is-black" @click.prevent="logout">
               Log out
             </a>
           </div>
