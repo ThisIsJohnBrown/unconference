@@ -88,11 +88,40 @@ export default new Vuex.Store({
         })
         .filter(unique);
       const result = await Promise.all(sessionReads);
-      context.commit("updateWatched", { watched: result.map(v => v.data()) });
-      // this.sessionCreators = result.map(v => v.data());
+      context.commit("updateWatched", {
+        watched: result.map(v => {
+          let watch = v.data();
+          watch.id = v.id;
+          return watch;
+        })
+      });
 
       return user;
     }),
+    updateWatched: (context, payload) => {
+      let watched;
+      let fullWatched = [...context.state.watchedSessions];
+      try {
+        watched = context.state.watchedSessions.map(s => s.id);
+      } catch (error) {
+        console.error(error.message);
+      }
+      const index = watched.indexOf(payload.session.id);
+      if (index === -1) {
+        watched.push(payload.session.id);
+        fullWatched.push(payload.session);
+      } else {
+        watched.splice(index, 1);
+        fullWatched = fullWatched.filter(s => s.id !== payload.session.id);
+      }
+      db.collection("users")
+        .doc(context.state.userDetails.id)
+        .set({ watched }, { merge: true });
+      context.commit({
+        type: "updateWatched",
+        watched: fullWatched
+      });
+    },
     bindProfileDetails: firestoreAction(async ({ bindFirestoreRef }, data) => {
       const user = await bindFirestoreRef(
         "profileDetails",
