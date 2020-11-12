@@ -11,6 +11,7 @@ import {
   updateSession
 } from "./sessionActions";
 
+Vue.config.devtools = true; //process.env.NODE_ENV === 'development'
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -19,7 +20,9 @@ export default new Vuex.Store({
     session: {},
     sessionCreator: {},
     sessionCreators: {},
-    user: {}
+    user: {},
+    userDetails: {},
+    profileDetails: {}
   },
   mutations: {
     ...vuexfireMutations,
@@ -67,7 +70,21 @@ export default new Vuex.Store({
     }),
     addSession: firestoreAction((c, p) => addSession(c, p)),
     updateSession: firestoreAction((c, p) => updateSession(c, p)),
-    deleteSession: firestoreAction((c, p) => deleteSession(c, p))
+    deleteSession: firestoreAction((c, p) => deleteSession(c, p)),
+    bindUser: firestoreAction(async ({ bindFirestoreRef }, id) => {
+      const user = await bindFirestoreRef(
+        "userDetails",
+        db.collection("users").doc(id)
+      );
+      return user;
+    }),
+    bindProfileDetails: firestoreAction(async ({ bindFirestoreRef }, data) => {
+      const user = await bindFirestoreRef(
+        "profileDetails",
+        db.collection("users").where("username", "==", data.username)
+      );
+      return user;
+    })
   },
   modules: {}
 });

@@ -13,7 +13,7 @@
         <div class="column" v-for="(session, j) in sessionChunk" v-bind:key="j">
           <SessionInfoCard
             v-bind:session="session"
-            v-bind:creator="sessionCreators[session.created_by]"
+            v-bind:creator="getUserDetails(session.created_by)"
           />
         </div>
       </div>
@@ -23,20 +23,10 @@
 
 <script>
 import SessionInfoCard from "@/components/SessionInfoCard";
-import { chunk } from "@/helpers";
+import { chunk, getUserDetails } from "@/helpers";
 export default {
   name: "Sessions",
   computed: {
-    sessionCreators() {
-      if (this.$store.state.sessionCreators) {
-        return this.$store.state.sessionCreators.reduce((acc, curr) => {
-          console.log(acc, curr.id);
-          acc[curr.id] = curr;
-          return acc;
-        }, {});
-      }
-      return this.$store.state.sessionCreators;
-    },
     sessions() {
       const now = new Date();
       const times = [
@@ -76,6 +66,9 @@ export default {
   },
   components: {
     SessionInfoCard
+  },
+  methods: {
+    getUserDetails
   }
 };
 </script>

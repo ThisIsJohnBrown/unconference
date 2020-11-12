@@ -9,6 +9,11 @@
           <form @submit.prevent="registerUser">
             <input
               class="input  is-size-3"
+              type="username"
+              placeholder="username"
+              v-model="username"
+            /><input
+              class="input  is-size-3"
               type="email"
               placeholder="email address"
               v-model="email"
@@ -45,6 +50,7 @@ export default {
     return {
       email: "",
       password: "",
+      username: "",
       error: ""
     };
   },
@@ -59,10 +65,12 @@ export default {
       try {
         const details = await register({
           email: this.email,
-          password: this.password
+          password: this.password,
+          username: this.username
         });
+        console.log(details);
         this.error =
-          details.success === false ? details.data.error.message : "";
+          details.success === false ? details.data?.error.message : "";
         if (!this.error) {
           this.$router.push({ name: "Home" });
         }
