@@ -50,8 +50,8 @@
         >
           <div
             class="column"
-            v-for="session in sessionChunks"
-            v-bind:key="session.id"
+            v-for="(session, j) in sessionChunks"
+            v-bind:key="j"
           >
             <SessionInfoCard
               v-bind:session="session"
@@ -68,27 +68,47 @@
 import SessionInfoCard from "@/components/SessionInfoCard";
 import { db } from "@/firebase";
 import { chunk, getUserDetails } from "@/helpers";
+
 export default {
   name: "Profile",
   data: function() {
-    return {
-      profileDetails: {},
-      username: ""
-    };
+    return {};
+  },
+  asyncComputed: {
+    async profileDetails() {
+      if (this.username) {
+        const userSnap = await db
+          .collection("users")
+          .where("username", "==", this.$route.params.username)
+          .get();
+        return userSnap.docs[0].data();
+      }
+      return null;
+    }
   },
   computed: {
+    profileWatched() {
+      return this.$store.state.sessions.filter(a => {
+        return this.profileDetails.watched.indexOf(a.id) !== -1;
+      });
+    },
     sessions() {
       return [...this.$store.state.sessions].splice(0, 3);
     },
+    username() {
+      return this.$route.params.username;
+    },
     details() {
-      return this.username
+      return this.$route.params.username
         ? this.profileDetails
         : this.$store.state.userDetails;
     },
     watched() {
-      return this.username
-        ? chunk(this.profileWatched, 3)
-        : chunk(this.$store.state.watchedSessions, 3);
+      if (this.$route.params.username) {
+        return this.profileDetails ? chunk(this.profileWatched, 3) : {};
+      } else {
+        return chunk(this.$store.state.watchedSessions, 3);
+      }
     }
   },
   components: {
@@ -96,21 +116,6 @@ export default {
   },
   methods: {
     getUserDetails
-  },
-  async mounted() {
-    if (this.$route.params.username) {
-      this.username = this.$route.params.username;
-      const userSnap = await db
-        .collection("users")
-        .where("username", "==", this.$route.params.username)
-        .get();
-      this.profileDetails = userSnap.docs[0].data();
-      this.profileWatched = this.$store.state.sessions.filter(a => {
-        console.log(a.id);
-        return this.profileDetails.watched.indexOf(a.id) !== -1;
-      });
-      console.log("--", this.profileWatched);
-    }
   }
 };
 </script>

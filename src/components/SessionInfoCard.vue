@@ -52,7 +52,6 @@
 </template>
 
 <script>
-import { db } from "@/firebase";
 const backgroundMap = {
   panel: "is-zigzag",
   workshop: "is-boxes",
@@ -66,22 +65,9 @@ export default {
       this.cardIsOpen = !this.cardIsOpen;
     },
     async toggleWatch() {
-      let watched;
-      try {
-        watched = [...this.currentWatched];
-      } catch (error) {
-        console.error(error.message);
-      }
-      if (!this.isWatched) {
-        watched = [...watched, this.session.id];
-      } else {
-        watched.splice(this.currentWatched.indexOf(this.session.id), 1);
-      }
-
-      await db
-        .collection("users")
-        .doc(this.$store.state.userDetails.id)
-        .set({ watched }, { merge: true });
+      this.$store.dispatch("updateWatched", {
+        session: this.session
+      });
     }
   },
   computed: {

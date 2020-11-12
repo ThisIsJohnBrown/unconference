@@ -3,6 +3,9 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import firebase from "firebase/app";
+import AsyncComputed from "vue-async-computed";
+
+Vue.use(AsyncComputed);
 
 Vue.config.productionTip = false;
 Vue.config.devtools = true; //process.env.NODE_ENV === 'development'

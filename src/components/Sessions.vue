@@ -12,6 +12,7 @@
       >
         <div class="column" v-for="(session, j) in sessionChunk" v-bind:key="j">
           <SessionInfoCard
+            v-if="getUserDetails(session.created_by)"
             v-bind:session="session"
             v-bind:creator="getUserDetails(session.created_by)"
           />
