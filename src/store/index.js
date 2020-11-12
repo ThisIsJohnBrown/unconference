@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import { vuexfireMutations, firestoreAction } from "vuexfire";
 import { db } from "../firebase";
-// import { unique } from "@/helpers";
+import { unique } from "@/helpers";
 import {
   addSession,
   bindSession,
@@ -22,7 +22,8 @@ export default new Vuex.Store({
     sessionCreators: {},
     user: {},
     userDetails: {},
-    profileDetails: {}
+    profileDetails: {},
+    watchedSessions: []
   },
   mutations: {
     ...vuexfireMutations,
@@ -31,6 +32,9 @@ export default new Vuex.Store({
     },
     logoutUser(state) {
       state.user = {};
+    },
+    updateWatched(state, payload) {
+      state.watchedSessions = payload.watched;
     }
   },
   actions: {
@@ -71,11 +75,22 @@ export default new Vuex.Store({
     addSession: firestoreAction((c, p) => addSession(c, p)),
     updateSession: firestoreAction((c, p) => updateSession(c, p)),
     deleteSession: firestoreAction((c, p) => deleteSession(c, p)),
-    bindUser: firestoreAction(async ({ bindFirestoreRef }, id) => {
-      const user = await bindFirestoreRef(
+    bindUser: firestoreAction(async (context, id) => {
+      const user = await context.bindFirestoreRef(
         "userDetails",
         db.collection("users").doc(id)
       );
+      const sessionCollection = db.collection("sessions");
+      const watchedSessions = user.watched.filter(unique);
+      const sessionReads = watchedSessions
+        .map(d => {
+          return sessionCollection.doc(d).get();
+        })
+        .filter(unique);
+      const result = await Promise.all(sessionReads);
+      context.commit("updateWatched", { watched: result.map(v => v.data()) });
+      // this.sessionCreators = result.map(v => v.data());
+
       return user;
     }),
     bindProfileDetails: firestoreAction(async ({ bindFirestoreRef }, data) => {

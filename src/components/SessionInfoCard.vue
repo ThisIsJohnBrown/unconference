@@ -30,9 +30,15 @@
       </div>
     </div>
     <footer class="card-footer" v-if="cardIsOpen">
-      <a href="#" class="card-footer-item has-text-white">
-        <i class="fas fa-calendar-plus"></i>
-        <span class="ml-2">Add to agenda</span>
+      <a @click.prevent="toggleWatch" class="card-footer-item has-text-white">
+        <div v-if="!isWatched">
+          <i class="fas fa-calendar-plus"></i>
+          <span class="ml-2">Add to agenda</span>
+        </div>
+        <div v-else>
+          <i class="fas fa-calendar-minus"></i>
+          <span class="ml-2">Remove from agenda</span>
+        </div>
       </a>
       <router-link
         class="card-footer-item has-text-white"
@@ -46,23 +52,49 @@
 </template>
 
 <script>
+import { db } from "@/firebase";
 const backgroundMap = {
   panel: "is-zigzag",
   workshop: "is-boxes",
   discussion: "is-striped",
   presentation: "is-dotted"
 };
-backgroundMap;
 export default {
   name: "SessionInfoCard",
   methods: {
     toggleOpenCard() {
       this.cardIsOpen = !this.cardIsOpen;
+    },
+    async toggleWatch() {
+      let watched;
+      try {
+        watched = [...this.currentWatched];
+      } catch (error) {
+        console.error(error.message);
+      }
+      if (!this.isWatched) {
+        watched = [...watched, this.session.id];
+      } else {
+        watched.splice(this.currentWatched.indexOf(this.session.id), 1);
+      }
+
+      await db
+        .collection("users")
+        .doc(this.$store.state.userDetails.id)
+        .set({ watched }, { merge: true });
     }
   },
   computed: {
     isStartingSoon() {
       return false;
+    },
+    currentWatched() {
+      return this.$store.state.userDetails.watched
+        ? [...this.$store.state.userDetails.watched]
+        : [];
+    },
+    isWatched() {
+      return this.currentWatched.indexOf(this.session.id) === -1 ? false : true;
     },
     isActive() {
       return false;
@@ -73,7 +105,7 @@ export default {
   },
   data: function() {
     return {
-      cardIsOpen: false,
+      cardIsOpen: true,
       cardClasses: {
         card: true,
         "m-1": true,
