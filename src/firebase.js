@@ -40,11 +40,18 @@ const register = async data => {
       email: data.email,
       username: data.username,
       verified: false,
-      avatar: `https://www.tinygraphs.com/squares/${displayName}?theme=base&numcolors=2&size=220.png`
+      avatar: `https://www.tinygraphs.com/squares/${displayName}?theme=base&numcolors=2&size=220.png`,
+      watched: [],
+      joined: []
     };
-    db.collection("users")
-      .doc(newUser.user.uid)
-      .set(userData);
+    try {
+      await db
+        .collection("users")
+        .doc(newUser.user.uid)
+        .set(userData);
+    } catch (error) {
+      console.error(error.message);
+    }
     return {
       success: true,
       data: newUser
@@ -59,7 +66,25 @@ const register = async data => {
 
 const googleLogin = async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
-  return await firebase.auth().signInWithPopup(provider);
+  const data = await firebase.auth().signInWithPopup(provider);
+  const userData = {
+    displayName: data.user.displayName,
+    email: data.user.email,
+    username: data.user.email.slice(0, data.user.email.indexOf("@")),
+    verified: false,
+    avatar: `https://www.tinygraphs.com/squares/${data.user.displayName}?theme=base&numcolors=2&size=220.png`,
+    watched: [],
+    joined: []
+  };
+  try {
+    await db
+      .collection("users")
+      .doc(data.user.uid)
+      .set(userData);
+  } catch (error) {
+    console.error(error.message);
+  }
+  return data;
 };
 
 const emailPasswordLogin = async data => {
