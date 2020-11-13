@@ -122,6 +122,18 @@ export default new Vuex.Store({
         watched: fullWatched
       });
     },
+    updateJoined: (context, payload) => {
+      let joined = [...context.state.userDetails.joined];
+      const index = joined.indexOf(payload.id);
+      if (index === -1) {
+        joined.push(payload.id);
+      } else {
+        joined.splice(index, 1);
+      }
+      db.collection("users")
+        .doc(context.state.userDetails.id)
+        .set({ joined }, { merge: true });
+    },
     bindProfileDetails: firestoreAction(async ({ bindFirestoreRef }, data) => {
       const user = await bindFirestoreRef(
         "profileDetails",

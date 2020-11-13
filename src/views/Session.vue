@@ -14,27 +14,9 @@
         <div class="tile is-child box">
           <div>
             <div v-if="authenticated">
-              <button v-if="isOwner" class="button" @click="startSession">
-                Start the session!
-              </button>
-              <button
-                class="button is-white"
-                v-for="participant in participants"
-                v-bind:key="participant.participantId"
-                @click.prevent="
-                  toggleVisibleParticipant(participant.participantId)
-                "
-              >
-                <i class="fas fa-calendar-plus"></i
-                ><span>{{ participant.displayName }}</span>
-              </button>
-              <button
-                v-if="!isOwner && isActive"
-                class="button"
-                @click="joinSession"
-              >
-                Join the session!
-              </button>
+              <p v-if="isActive">Session is active</p>
+              <p v-else>Session IS NOT active</p>
+
               <p v-if="!isOwner && !isActive">
                 Session hasn't started yet!
               </p>
@@ -44,6 +26,23 @@
                 If you want to participate in this session, please register or
                 log in!
               </p>
+            </div>
+            <SessionAdmin
+              v-if="isOwner"
+              v-bind:participants="participants"
+              v-bind:api="api"
+            />
+            <div v-if="isActive && !isOwner">
+              <button class="button" @click="joinSession" v-if="!hasJoined">
+                Join the session!
+              </button>
+              <div v-if="hasJoined">
+                <form @submit.prevent="submitQuestion">
+                  <input class="input" type="class" v-model="question" />
+                  <button class="button">Submit Question</button>
+                </form>
+                <button class="button" @click="toggleHand">Raise Hand</button>
+              </div>
             </div>
           </div>
           <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
@@ -57,18 +56,54 @@
 </template>
 
 <script>
-import { TimeStamp } from "@/firebase";
+import SessionAdmin from "@/components/SessionAdmin";
+import { unique } from "@/helpers";
 export default {
+  components: { SessionAdmin },
   data: function() {
     return {
       slug: "another-jitsi-test",
       api: {},
       hasJoined: false,
       participants: [],
-      hiddenParticipantIds: []
+      hiddenParticipantIds: [],
+      randomSlug: "",
+      randomPassword: "",
+      question: "",
+      isHandRaised: false
     };
   },
   methods: {
+    toggleHand() {
+      this.isHandRaised = !this.isHandRaised;
+      let handsRaised = [...this.handsRaised];
+      const index = handsRaised.indexOf(this.$store.state.user.uid);
+      if (index === -1) {
+        handsRaised.push(this.$store.state.user.uid);
+      } else {
+        handsRaised.splice(index, 1);
+      }
+      this.$store.dispatch("updateSession", {
+        id: this.$store.state.session[0].id,
+        data: {
+          handsRaised: handsRaised.filter(unique)
+        }
+      });
+    },
+    submitQuestion() {
+      const question = {
+        user: this.$store.state.user.uid,
+        question: this.question
+      };
+      const questions = [...this.questions, question];
+      this.$store.dispatch("updateSession", {
+        id: this.$store.state.session[0].id,
+        data: {
+          questions: questions
+        }
+      });
+      this.question = "";
+    },
     initVisibleParticipants(id) {
       this.$store.dispatch("updateSession", {
         id: this.$store.state.session[0].id,
@@ -85,27 +120,15 @@ export default {
         }
       });
     },
-    toggleVisibleParticipant(id) {
-      const visibleIds = [...this.visibleParticipants];
-      const index = visibleIds.indexOf(id);
-      if (index === -1) {
-        visibleIds.push(id);
-      } else {
-        visibleIds.splice(index, 1);
-      }
-      this.$store.dispatch("updateSession", {
-        id: this.$store.state.session[0].id,
-        data: {
-          visible: visibleIds
-        }
-      });
-    },
     initJitsi() {
       this.hasJoined = true;
       const domain = "localhost:8081";
       const options = {
-        roomName: this.slug,
+        roomName: `${this.slug}-${this.randomSlug ||
+          this.$store.state.session[0].randomSlug}`,
         parentNode: document.querySelector(".jitsi-block"),
+        password:
+          this.randomPassword || this.$store.state.session[0].randomPassword,
         configOverwrite: {
           startWithAudioMuted: true,
           startWithVideoMuted: true,
@@ -128,12 +151,19 @@ export default {
             "tileview",
             "help"
           ]
+          // filmStripOnly: true
         },
         userInfo: {
           // email: this.$store.state.user.email,
           displayName: this.$store.state.userDetails.username
         }
       };
+
+      console.log("--options", options);
+
+      if (this.isOwner) {
+        this.isOwner;
+      }
 
       // eslint-disable-next-line
       this.api = new JitsiMeetExternalAPI(domain, options);
@@ -153,25 +183,30 @@ export default {
         );
         e;
       });
-      this.api.addEventListeners({
-        participantRoleChanged: e => {
-          if (e.role == "moderator" && this.visibleParticipants == []) {
-            this.initVisibleParticipants(e.id);
-          }
+      this.api.addEventListener("participantRoleChanged", e => {
+        console.log("ROLE CHANGED", e.role, this.visibleParticipants.length);
+        if (e.role == "moderator" && this.visibleParticipants.length === 0) {
+          this.initVisibleParticipants(e.id);
+          console.log("SETTING PASSWORD");
+          this.api.executeCommand(
+            "password",
+            this.randomPassword || this.$store.state.session[0].randomPassword
+          );
         }
       });
-    },
-    startSession() {
-      this.$store.dispatch("updateSession", {
-        id: this.$store.state.session[0].id,
-        data: {
-          active: true,
-          activeTime: TimeStamp.fromDate(new Date())
-        }
+      this.api.addEventListener("passwordRequired", () => {
+        console.log("PASSWORD REQUIRED");
+        console.log(this.api);
+        this.api.executeCommand(
+          "password",
+          this.$store.state.session[0].randomPassword
+        );
       });
-      this.initJitsi();
     },
     joinSession() {
+      this.$store.dispatch("updateJoined", {
+        id: this.$store.state.session[0].id
+      });
       this.initJitsi();
     }
   },
@@ -183,7 +218,7 @@ export default {
       console.error(error.message);
     }
     if (this.isActive) {
-      setTimeout(this.initJitsi, 500);
+      // setTimeout(this.initJitsi, 500);
     }
   },
   computed: {
@@ -205,12 +240,12 @@ export default {
   },
   watch: {
     isActive(newActive, oldActive) {
-      if (newActive === true && oldActive !== newActive) {
-        // setTimeout(this.initJitsi.bind(this), 500);
+      if (newActive === true && oldActive !== newActive && this.isOwner) {
+        this.initJitsi();
       }
     },
     visibleParticipants(to) {
-      if (this.api) {
+      if (this.hasJoined) {
         const ids = this.api.getParticipantsInfo().map(p => p.participantId);
         this.api.executeCommand(
           "toggleParticipant",
