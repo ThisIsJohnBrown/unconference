@@ -2,7 +2,9 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 import "firebase/analytics";
-const { config } = require("../firebase.config");
+import * as config from "../firebase.config";
+
+console.log(config);
 
 const fb = firebase.initializeApp(config);
 fb.analytics();
