@@ -64,7 +64,7 @@
     <section class="section is-max-desktop">
       <div class="container">
         <h2 class="is-size-1 has-text-left mb-6">Upcoming sessions</h2>
-        <Sessions />
+        <Sessions v-bind:sessions="sessions" />
       </div>
     </section>
   </div>
@@ -108,6 +108,9 @@ export default {
   computed: {
     isAuthenticated() {
       return this.$store.state.user?.uid;
+    },
+    sessions() {
+      return this.$store.state.sessions;
     }
   },
   components: { Sessions }

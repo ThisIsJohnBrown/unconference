@@ -1,65 +1,57 @@
 <template>
-  <div class="container is-fluid mt-6" v-if="session">
-    <div class="tile is-ancestor">
-      <div class="tile is-4 is-vertical is-parent">
-        <div class="tile is-child box">
-          <p class="title has-text-white is-size-3">{{ session.title }}</p>
-          <p class="is-size-5 block">
-            John Brown
-          </p>
-          <p>
+  <v-container v-if="session">
+    <v-row>
+      <v-col cols="4" style="overflow:auto height: 80vh">
+        <div>
+          <div class="d-block pa-2 green white--text" v-if="isActive"></div>
+          <div class="d-block pa-2 red white--text" v-else></div>
+        </div>
+        <v-card outlined>
+          <v-card-title>
+            {{ session.title }}
+          </v-card-title>
+          <v-card-subtitle>
+            Moderated by John Brown
+          </v-card-subtitle>
+          <v-card-subtitle>
             {{ session.details }}
-          </p>
-        </div>
-        <div class="tile is-child box">
-          <div>
-            <div v-if="authenticated">
-              <p v-if="isActive">Session is active</p>
-              <p v-else>Session IS NOT active</p>
-
-              <p v-if="!isOwner && !isActive">
-                Session hasn't started yet!
-              </p>
+          </v-card-subtitle>
+        </v-card>
+        <SessionAdminPanel
+          v-bind:participants="participants"
+          v-bind:api="api"
+          v-if="isOwner"
+          v-bind:joinSession="joinSession"
+        />
+        <SessionWatcherPanel
+          v-bind:hasJoined="hasJoined"
+          v-bind:joinSession="joinSession"
+          v-if="!isOwner"
+        />
+      </v-col>
+      <v-col>
+        <v-card outlined>
+          <v-responsive :aspect-ratio="16 / 9">
+            <div v-if="isBefore && !isActive">
+              This session will start soon!
             </div>
-            <div v-else>
-              <p>
-                If you want to participate in this session, please register or
-                log in!
-              </p>
+            <div class="jitsi-block" v-if="isActive"></div>
+            <div v-if="isComplete">
+              This session is over. Thanks for attending!
             </div>
-            <SessionAdmin
-              v-if="isOwner"
-              v-bind:participants="participants"
-              v-bind:api="api"
-            />
-            <div v-if="isActive && !isOwner">
-              <button class="button" @click="joinSession" v-if="!hasJoined">
-                Join the session!
-              </button>
-              <div v-if="hasJoined">
-                <form @submit.prevent="submitQuestion">
-                  <input class="input" type="class" v-model="question" />
-                  <button class="button">Submit Question</button>
-                </form>
-                <button class="button" @click="toggleHand">Raise Hand</button>
-              </div>
-            </div>
-          </div>
-          <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        </div>
-      </div>
-      <div class="tile is-parent">
-        <div class="tile is-child box jitsi-block"></div>
-      </div>
-    </div>
-  </div>
+          </v-responsive>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
-import SessionAdmin from "@/components/SessionAdmin";
-import { unique } from "@/helpers";
+import SessionAdminPanel from "@/components/SessionAdminPanel";
+import SessionWatcherPanel from "@/components/SessionWatcherPanel";
+
 export default {
-  components: { SessionAdmin },
+  components: { SessionAdminPanel, SessionWatcherPanel },
   data: function() {
     return {
       slug: "another-jitsi-test",
@@ -68,42 +60,10 @@ export default {
       participants: [],
       hiddenParticipantIds: [],
       randomSlug: "",
-      randomPassword: "",
-      question: "",
-      isHandRaised: false
+      randomPassword: ""
     };
   },
   methods: {
-    toggleHand() {
-      this.isHandRaised = !this.isHandRaised;
-      let handsRaised = [...this.handsRaised];
-      const index = handsRaised.indexOf(this.$store.state.user.uid);
-      if (index === -1) {
-        handsRaised.push(this.$store.state.user.uid);
-      } else {
-        handsRaised.splice(index, 1);
-      }
-      this.$store.dispatch("updateSession", {
-        id: this.$store.state.session[0].id,
-        data: {
-          handsRaised: handsRaised.filter(unique)
-        }
-      });
-    },
-    submitQuestion() {
-      const question = {
-        user: this.$store.state.user.uid,
-        question: this.question
-      };
-      const questions = [...this.questions, question];
-      this.$store.dispatch("updateSession", {
-        id: this.$store.state.session[0].id,
-        data: {
-          questions: questions
-        }
-      });
-      this.question = "";
-    },
     initVisibleParticipants(id) {
       this.$store.dispatch("updateSession", {
         id: this.$store.state.session[0].id,
@@ -236,12 +196,24 @@ export default {
     },
     isActive() {
       return this.$store.state.session[0]?.active;
+    },
+    isBefore() {
+      return (
+        !this.$store.state.session[0].isActive &&
+        !this.$store.state.session[0].endTime
+      );
+    },
+    isComplete() {
+      return (
+        !this.$store.state.session[0].isActive &&
+        this.$store.state.session[0].endTime
+      );
     }
   },
   watch: {
     isActive(newActive, oldActive) {
-      if (newActive === true && oldActive !== newActive && this.isOwner) {
-        this.initJitsi();
+      if (newActive === true && oldActive !== newActive) {
+        setTimeout(this.initJitsi, 1000);
       }
     },
     visibleParticipants(to) {
@@ -262,9 +234,6 @@ export default {
 
 <style lang="scss" scoped>
 .jitsi-block {
-}
-
-.box {
-  border: solid white 2px;
+  height: 100%;
 }
 </style>

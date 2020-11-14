@@ -1,43 +1,15 @@
-$scheme-main: hsl(0, 0%, 4%);
-$scheme-main-bis: hsl(0, 0%, 7%);
-$scheme-main-ter: hsl(0, 0%, 14%);
-$scheme-invert: hsl(0, 0%, 100%);
-$scheme-invert-bis: hsl(0, 0%, 98%);
-$scheme-invert-ter: hsl(0, 0%, 95%);
-$text: hsl(0, 0%, 100%);
-
-$footer-background-color: $scheme-main;
-$footer-color: $scheme-invert;
-
-$card-color: $scheme-invert;
-$card-background-color: $scheme-main;
-$card-radius: none;
-$card-shadow: none;
-
-$box-color: $scheme-invert;
-$box-background-color: $scheme-main;
-$box-radius: none;
-$box-shadow: none;
-
-$button-color: $scheme-invert;
-$button-hover-color: $scheme-invert;
-// $button-text-hover-color: $scheme-invert;
-
-$label-color: $scheme-invert;
-$radius: 0;
-$small-radius: 0;
-
-$input-color: $scheme-invert;
-$input-background-color: $scheme-main;
-$input-border-color: $scheme-invert;
-$input-shadow: none;
-
-@import "./_bulma.scss";
-@import "./_variables.scss";
 @import "./_backgrounds.scss";
 
 #app {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
+}
+
+.v-ripple__container {
+  display: none !important;
+}
+
+.theme--light.v-btn--active:before {
+  opacity: 0;
 }

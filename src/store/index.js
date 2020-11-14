@@ -98,6 +98,57 @@ export default new Vuex.Store({
 
       return user;
     }),
+    addQuestion: (context, question) => {
+      let questions = context.state.session[0].questions.length
+        ? [...context.state.session[0].questions]
+        : [];
+      questions.push(question);
+      updateSession(context, {
+        id: context.state.session[0].id,
+        data: {
+          questions: questions
+        }
+      });
+    },
+    addRaisedHand: (context, raisedHand) => {
+      let handsRaised = context.state.session[0].handsRaised.length
+        ? [...context.state.session[0].handsRaised]
+        : [];
+      if (handsRaised.length) {
+        const index = handsRaised.reduce(hand => raisedHand.user === hand.user);
+        console.log(index);
+      } else {
+        handsRaised.push(raisedHand);
+        updateSession(context, {
+          id: context.state.session[0].id,
+          data: {
+            handsRaised
+          }
+        });
+      }
+    },
+    removeRaisedHand: (context, id) => {
+      let handsRaised = context.state.session[0].handsRaised.length
+        ? [...context.state.session[0].handsRaised]
+        : [];
+      if (handsRaised.length) {
+        let index = -1;
+        handsRaised.forEach((hand, i) => {
+          if (id === hand.user) {
+            index = i;
+          }
+        });
+        if (index !== -1) {
+          handsRaised.splice(index, 1);
+          updateSession(context, {
+            id: context.state.session[0].id,
+            data: {
+              handsRaised
+            }
+          });
+        }
+      }
+    },
     updateWatched: (context, payload) => {
       let watched;
       let fullWatched = [...context.state.watchedSessions];

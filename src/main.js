@@ -1,4 +1,5 @@
 import Vue from "vue";
+import vuetify from "@/plugins/vuetify";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
@@ -8,7 +9,6 @@ import AsyncComputed from "vue-async-computed";
 Vue.use(AsyncComputed);
 
 Vue.config.productionTip = false;
-Vue.config.devtools = true; //process.env.NODE_ENV === 'development'
 
 let app;
 
@@ -27,8 +27,8 @@ firebase.auth().onAuthStateChanged(user => {
     app = new Vue({
       router,
       store,
+      vuetify,
       render: h => h(App)
     }).$mount("#app");
-    window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue = app.constructor;
   }
 });

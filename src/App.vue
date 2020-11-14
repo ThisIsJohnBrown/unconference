@@ -1,11 +1,11 @@
 <template>
-  <div id="app">
+  <v-app id="app">
     <Navbar />
-    <div class="container is-fluid">
+    <v-content>
       <router-view />
-    </div>
+    </v-content>
     <Footer />
-  </div>
+  </v-app>
 </template>
 
 <script>
