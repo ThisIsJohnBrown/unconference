@@ -42,6 +42,7 @@ const now = new Date();
 times.push(now.setMinutes(0, 0, 0));
 times.push(now.setMinutes(30, 0, 0));
 times.push(now.setMinutes(60, 0, 0));
+times.push(now.setMinutes(30, 0, 0));
 times.push(now.setMinutes(-90, 0, 0));
 
 let sessionTypes = ["panel", "discussion", "workshop", "presentation"];
