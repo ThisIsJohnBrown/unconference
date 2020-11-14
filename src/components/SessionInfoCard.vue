@@ -5,26 +5,32 @@
       src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
       height="200px"
     ></v-img> -->
-      <v-card-title>
+      <div
+        class="overline ml-4 pl-4 mt-4"
+        :class="`${sessionColor.class} lighten-3`"
+      >
+        {{ session.type }}
+      </div>
+      <v-card-title class="mb-3">
         {{ session.title }}
       </v-card-title>
-      <v-card-subtitle>
+      <v-card-subtitle class="mb-3">
         {{ session.details }}
       </v-card-subtitle>
 
       <v-card-text>
-        <v-chip-group column>
-          <v-chip
-            :class="tag.length % 2 ? 'green lighten-5' : 'red lighten-5'"
-            small
-            v-for="(tag, i) in session.tags"
-            v-bind:key="i"
-            >{{ tag }}</v-chip
-          >
-        </v-chip-group>
+        <v-chip
+          :class="`${sessionColor.class}`"
+          small
+          label
+          outlined
+          v-for="(tag, i) in session.tags"
+          v-bind:key="i"
+          >{{ tag }}</v-chip
+        >
       </v-card-text>
 
-      <v-card-actions v-if="isAuthenticated">
+      <v-card-actions v-if="isAuthenticated && !isCompleted">
         <v-btn text @click.prevent="toggleWatch">
           <div v-if="!isWatched">
             <span>Add to agenda</span>
@@ -33,18 +39,25 @@
             <span>Remove from agenda</span>
           </div>
         </v-btn>
-        <v-btn text :to="{ name: 'Session', params: { slug: session.slug } }">
+        <v-btn
+          text
+          :to="{ name: 'Session', params: { slug: session.slug } }"
+          v-if="isStartingSoon || isActive"
+        >
           <span>Go to session</span>
         </v-btn>
       </v-card-actions>
-      <!-- <v-card-actions v-else>
-        <v-btn text><span>Register to attend</span></v-btn>
-      </v-card-actions> -->
     </v-card>
   </v-badge>
 </template>
 
 <script>
+const colorMap = {
+  presentation: { border: "#EF9A9A", class: "red" },
+  workshop: { border: "#CE93D8", class: "purple" },
+  panel: { border: "#90CAF9", class: "blue" },
+  discussion: { border: "#80CBC4", class: "teal" }
+};
 export default {
   name: "SessionInfoCard",
   methods: {
@@ -58,8 +71,23 @@ export default {
     }
   },
   computed: {
+    startTime() {
+      return new Date(this.session.startTime.seconds * 1000);
+    },
+    sessionColor() {
+      return colorMap[this.session.type];
+    },
+    endTime() {
+      return new Date(this.session.endTime.seconds * 1000);
+    },
+    minutesUntilStart() {
+      return parseInt((this.startTime - new Date()) / (1000 * 60));
+    },
+    minutesUntilEnd() {
+      return parseInt((this.endTime - new Date()) / (1000 * 60));
+    },
     isStartingSoon() {
-      return false;
+      return this.minutesUntilStart < 30 && this.minutesUntilStart >= 0;
     },
     currentWatched() {
       return this.$store.state.userDetails.watched
@@ -70,15 +98,15 @@ export default {
       return this.currentWatched.indexOf(this.session.id) === -1 ? false : true;
     },
     isActive() {
-      return false;
+      return this.minutesUntilStart <= 0 && this.minutesUntilEnd >= 0;
     },
     isCompleted() {
-      return true;
+      return this.minutesUntilEnd < 0;
     },
     badgeColor() {
       if (this.isStartingSoon) return "warning";
-      if (this.isActive) return "success";
-      if (this.isCompleted) return "error";
+      else if (this.isActive) return "success";
+      else if (this.isCompleted) return "error";
       return "";
     },
     isAuthenticated() {
