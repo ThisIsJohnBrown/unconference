@@ -61,17 +61,10 @@
         </div>
       </div>
     </section>
-    <section class="section is-max-desktop">
-      <div class="container">
-        <h2 class="is-size-1 has-text-left mb-6">Upcoming sessions</h2>
-        <Sessions v-bind:sessions="sessions" />
-      </div>
-    </section>
   </div>
 </template>
 
 <script>
-import Sessions from "@/components/Sessions";
 import { TimeStamp } from "@/firebase";
 export default {
   name: "Home",
@@ -113,7 +106,7 @@ export default {
       return this.$store.state.sessions;
     }
   },
-  components: { Sessions }
+  components: {}
 };
 </script>
 
