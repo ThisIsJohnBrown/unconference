@@ -78,6 +78,13 @@ const createSession = async users => {
     const slug = string_to_slug(title);
     const startTime = new Date(times[Math.floor(Math.random() * times.length)]);
 
+    const numTags = Math.floor(Math.random() * 3) + 1;
+    const tags = [`${noun.slice(0, 1).toUpperCase()}${noun.slice(1)}`];
+    for (let i = 0; i < numTags; i++) {
+      const tag = hacker.noun();
+      tags.push(`${tag.slice(0, 1).toUpperCase()}${tag.slice(1)}`);
+    }
+
     let session = await db.collection("sessions").add({
       title: title,
       active: false,
@@ -89,9 +96,11 @@ const createSession = async users => {
       type: sessionTypes[Math.floor(Math.random() * sessionTypes.length)],
       details: faker.lorem.paragraph(),
       created_by: user.id,
+      tags,
       handsRaised: [],
       questions: [],
-      visible: []
+      visible: [],
+      kicked: []
     });
     return;
   } catch (error) {

@@ -14,11 +14,13 @@
 
       <v-card-text>
         <v-chip-group column>
-          <v-chip small>Tag</v-chip>
-
-          <v-chip small>Another Tag</v-chip>
-
-          <v-chip small>One More</v-chip>
+          <v-chip
+            :class="tag.length % 2 ? 'green lighten-5' : 'red lighten-5'"
+            small
+            v-for="(tag, i) in session.tags"
+            v-bind:key="i"
+            >{{ tag }}</v-chip
+          >
         </v-chip-group>
       </v-card-text>
 
