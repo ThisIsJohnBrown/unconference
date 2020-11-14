@@ -5,6 +5,9 @@ import Session from "../views/Session.vue";
 import Profile from "../views/Profile.vue";
 import Register from "../views/Register.vue";
 import Login from "../views/Login.vue";
+import About from "../views/About.vue";
+import Sessions from "../views/Sessions.vue";
+import CodeOfConduct from "../views/CodeOfConduct.vue";
 import store from "@/store";
 
 Vue.use(VueRouter);
@@ -19,6 +22,21 @@ const routes = [
     path: "/register",
     name: "Register",
     component: Register
+  },
+  {
+    path: "/about",
+    name: "About",
+    component: About
+  },
+  {
+    path: "/code-of-conduct",
+    name: "CodeOfConduct",
+    component: CodeOfConduct
+  },
+  {
+    path: "/sessions",
+    name: "Sessions",
+    component: Sessions
   },
   {
     path: "/login",

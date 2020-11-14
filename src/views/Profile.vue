@@ -17,13 +17,13 @@
       </v-row>
     </v-container>
     <div class="container">
-      <Sessions v-bind:sessions="watched" />
+      <SessionsList v-bind:sessions="watched" />
     </div>
   </div>
 </template>
 
 <script>
-import Sessions from "@/components/Sessions";
+import SessionsList from "@/components/SessionsList";
 import { db } from "@/firebase";
 import { getUserDetails } from "@/helpers";
 
@@ -68,7 +68,7 @@ export default {
     }
   },
   components: {
-    Sessions
+    SessionsList
   },
   methods: {
     getUserDetails
