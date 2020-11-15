@@ -1,5 +1,34 @@
 <template>
   <div>
+    <v-container>
+      <v-row class="ma-6" align="center" justify="center">
+        <v-img :src="shapes[0]" class="ma-6"></v-img>
+        <h1 class="text-h1 ma-6">unconference</h1>
+        <h2 class="text-h4 ma-6">
+          A new take on conferences during remote times
+        </h2>
+        <v-img :src="shapes[1]" class="ma-6"></v-img>
+      </v-row>
+    </v-container>
+    <v-container fill-height>
+      <v-row
+        class="ma-6"
+        align="center"
+        justify="center"
+        color="teal lighten-4"
+      >
+        <v-col cols="6" align="center" justify="center">
+          <h3 class="text-h5">Have an idea?</h3>
+          <v-btn class="mt-4" outlined tile :to="{ name: `Create` }"
+            >Create a session</v-btn
+          >
+        </v-col>
+        <v-col cols="6" align="center" justify="center">
+          <h3 class="text-h5">Want to join?</h3>
+          <v-btn class="mt-4" outlined tile>Register</v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
     <v-container fill-height>
       <v-row align="center" justify="center"
         ><v-col cols="8"><v-img :src="images[0]"></v-img></v-col
@@ -41,60 +70,10 @@
         ><v-col cols="8"><v-img :src="images[3]"></v-img></v-col
       ></v-row>
     </v-container>
-    <section class="section is-max-desktop">
-      <div class="container">
-        <h2 class="is-size-1 has-text-right mb-6">Register your own Session</h2>
-        <div v-if="isRegistering">
-          <form class="is-size-3" @submit.prevent="addSession">
-            <input
-              class="input is-size-3"
-              type="text"
-              v-model="session.title"
-              placeholder="Session Title (Something like 'Avoid The Top 10 ______ Mistakes')"
-            />
-            <textarea
-              name=""
-              id=""
-              class="textarea is-size-4"
-              v-model="session.details"
-              placeholder="All the details about your session (the more, the better)"
-            ></textarea>
-            <div class="select">
-              <select v-model="session.type">
-                <option value="presentation">Presentation</option>
-                <option value="panel">Moderated Panel</option>
-                <option value="workshop">Workshop</option>
-                <option value="discussion">Open Discussion</option>
-              </select>
-            </div>
-            <div class="select">
-              <select v-model="session.time">
-                <option value="12:00-12:30">12:00-12:30</option>
-                <option value="12:30-13:00">12:30-1:00</option>
-                <option value="13:00-13:30">1:00-1:30</option>
-                <option value="13:30-14:00">1:30-2:00</option>
-              </select>
-            </div>
-            <button class="button is-size-3 is-pulled-right">
-              Create session
-            </button>
-          </form>
-        </div>
-        <div v-else>
-          <button
-            @click="beginRegister()"
-            class="button is-size-3 is-pulled-right"
-          >
-            Create a session!
-          </button>
-        </div>
-      </div>
-    </section>
   </div>
 </template>
 
 <script>
-import { TimeStamp } from "@/firebase";
 export default {
   name: "Home",
   data: function() {
@@ -111,28 +90,11 @@ export default {
         require("@/assets/many.png"),
         require("@/assets/tracks.png"),
         require("@/assets/safety.png")
-      ]
+      ],
+      shapes: [require("@/assets/shapes1.png"), require("@/assets/shapes2.png")]
     };
   },
-  methods: {
-    beginRegister() {
-      this.isRegistering = true;
-    },
-    addSession() {
-      const times = this.session.time.split("-").map(time => time.split(":"));
-      //eslint-disable-next-line
-      const startTime = TimeStamp.fromMillis((new Date()).setHours(times[0][0] - 1, times[0][1], 0, 0))
-      //eslint-disable-next-line
-      const endTime = TimeStamp.fromMillis(
-        new Date().setHours(times[1][0] - 1, times[1][1], 0, 0)
-      );
-      this.$store.dispatch("addSession", {
-        ...this.session,
-        startTime,
-        endTime
-      });
-    }
-  },
+  methods: {},
   computed: {
     isAuthenticated() {
       return this.$store.state.user?.uid;

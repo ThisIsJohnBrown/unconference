@@ -3,9 +3,11 @@ import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 import Session from "../views/Session.vue";
 import Profile from "../views/Profile.vue";
+import UserProfile from "../views/Profile.vue";
 import Register from "../views/Register.vue";
 import Login from "../views/Login.vue";
 import About from "../views/About.vue";
+import Create from "../views/Create.vue";
 import Sessions from "../views/Sessions.vue";
 import CodeOfConduct from "../views/CodeOfConduct.vue";
 import store from "@/store";
@@ -27,6 +29,11 @@ const routes = [
     path: "/about",
     name: "About",
     component: About
+  },
+  {
+    path: "/create",
+    name: "Create",
+    component: Create
   },
   {
     path: "/code-of-conduct",
@@ -55,8 +62,8 @@ const routes = [
   },
   {
     path: "/user/:username",
-    name: "Profile",
-    component: Profile
+    name: "UserProfile",
+    component: UserProfile
   }
 ];
 
