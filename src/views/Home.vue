@@ -1,17 +1,46 @@
 <template>
   <div>
-    <section class="hero">
-      <div class="hero-body has-text-white">
-        <div class="container">
-          <h1 class="title has-text-white is-size-1">
-            Welcome to the virtual unconference
-          </h1>
-          <h2 class="subtitle">
-            A place for learning, sharing, and connecting!
-          </h2>
-        </div>
-      </div>
-    </section>
+    <v-container fill-height>
+      <v-row align="center" justify="center"
+        ><v-col cols="8"><v-img :src="images[0]"></v-img></v-col
+        ><v-col cols="4"
+          ><h3 class="text-h3 mb-5">Community Decides</h3>
+          <p>
+            Attendees guide the topics, because anyone can organize or attend a
+            panel, presentation, or open conversation. You get to choose!
+          </p></v-col
+        ></v-row
+      >
+      <v-row align="center" justify="center"
+        ><v-col cols="4"
+          ><h3 class="text-h3 mb-5">Many-to-many</h3>
+          <p>
+            More than one-way streaming or pre-recorded talks, you can ask
+            questions and interact in real time with the hosts and attendees of
+            the sessions
+          </p></v-col
+        ><v-col cols="8"><v-img :src="images[1]"></v-img></v-col
+      ></v-row>
+      <v-row align="center" justify="center"
+        ><v-col cols="8"><v-img :src="images[2]"></v-img></v-col
+        ><v-col cols="4"
+          ><h3 class="text-h3 mb-5">Infinite tracks</h3>
+          <p>
+            There’s no one track of talks to listen to. You can bounce between
+            different subjects and formats and create your own experience.
+          </p></v-col
+        ></v-row
+      >
+      <v-row align="center" justify="center"
+        ><v-col cols="4"
+          ><h3 class="text-h3 mb-5">Prioritizing safety</h3>
+          <p>
+            As this is an open platform for communication, all attendees must
+            register and adhere to a code of conduct. No exceptions.
+          </p></v-col
+        ><v-col cols="8"><v-img :src="images[3]"></v-img></v-col
+      ></v-row>
+    </v-container>
     <section class="section is-max-desktop">
       <div class="container">
         <h2 class="is-size-1 has-text-right mb-6">Register your own Session</h2>
@@ -76,7 +105,13 @@ export default {
         details: "",
         type: "presentation",
         time: "12:00-12:30"
-      }
+      },
+      images: [
+        require("@/assets/create.png"),
+        require("@/assets/many.png"),
+        require("@/assets/tracks.png"),
+        require("@/assets/safety.png")
+      ]
     };
   },
   methods: {

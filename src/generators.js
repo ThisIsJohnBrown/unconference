@@ -122,15 +122,13 @@ const clearSessions = async () => {
   }
 };
 
-const clearUsers = async () => {
+const clearUsers = () => {
   try {
-    const sessionCollection = await db.collection("users").get();
+    const sessionCollection = db.collection("users").get();
     sessionCollection.forEach(doc => {
-      //   if (doc.id !== "t98k94k7y9fRQ9zscrUtBC5fHo12") {
       db.collection("users")
         .doc(doc.id)
         .delete();
-      //   }
     });
   } catch (error) {
     console.log(error.message);
@@ -142,18 +140,22 @@ if (argv.clearSessions) {
   clearSessions();
 }
 if (argv.clearUsers) {
-  async () => await clearUsers();
-  admin
-    .auth()
-    .listUsers(1000)
-    .then(function(listUsersResult) {
-      listUsersResult.users.forEach(function(userRecord) {
-        admin.auth().deleteUser(userRecord.toJSON().uid);
+  try {
+    clearUsers();
+    admin
+      .auth()
+      .listUsers(1000)
+      .then(function(listUsersResult) {
+        listUsersResult.users.forEach(function(userRecord) {
+          admin.auth().deleteUser(userRecord.toJSON().uid);
+        });
+      })
+      .catch(function(error) {
+        console.log("Error listing users:", error);
       });
-    })
-    .catch(function(error) {
-      console.log("Error listing users:", error);
-    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 if (argv.users) {
