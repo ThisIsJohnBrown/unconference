@@ -4,8 +4,6 @@ import "firebase/firestore";
 import "firebase/analytics";
 import * as config from "../firebase.config";
 
-console.log(config);
-
 const fb = firebase.initializeApp(config);
 fb.analytics();
 

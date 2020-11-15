@@ -11,9 +11,14 @@
       >
         {{ session.type }}
       </div>
-      <v-card-title class="mb-3">
-        {{ session.title }}
-      </v-card-title>
+      <router-link
+        class="text-decoration-none text-success black--text"
+        :to="{ name: 'Session', params: { slug: session.slug } }"
+      >
+        <v-card-title>
+          {{ session.title }}
+        </v-card-title>
+      </router-link>
       <v-card-subtitle class="mb-3">
         {{ session.details }}
       </v-card-subtitle>
@@ -28,23 +33,18 @@
           v-bind:key="i"
           >{{ tag }}</v-chip
         >
+        <div class="overline pl-4 mt-6 green lighten-3" v-if="isOwner">
+          You own this session!
+        </div>
       </v-card-text>
-
       <v-card-actions v-if="isAuthenticated && !isCompleted">
-        <v-btn text @click.prevent="toggleWatch">
+        <v-btn text @click.prevent="toggleWatch" v-if="!isOwner">
           <div v-if="!isWatched">
             <span>Add to agenda</span>
           </div>
           <div v-else>
             <span>Remove from agenda</span>
           </div>
-        </v-btn>
-        <v-btn
-          text
-          :to="{ name: 'Session', params: { slug: session.slug } }"
-          v-if="isStartingSoon || isActive"
-        >
-          <span>Go to session</span>
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -100,6 +100,9 @@ export default {
     isActive() {
       return this.minutesUntilStart <= 0 && this.minutesUntilEnd >= 0;
     },
+    isOwner() {
+      return this.session?.created_by === this.$store.state.user.uid;
+    },
     isCompleted() {
       return this.minutesUntilEnd < 0;
     },
@@ -122,70 +125,11 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/scss/_backgrounds.scss";
-// @import "@/scss/_variables.scss";
-.card {
-  header {
-    border-bottom: solid white 2px;
-    cursor: pointer;
-  }
-  box-shadow: 0 0 0 3px black;
-  border: solid white 2px;
-  overflow: initial;
 
-  &::after {
-    content: " ";
-    width: calc(100%);
-    height: calc(100%);
-    position: absolute;
-    top: 0em;
-    left: 0em;
-    z-index: -1;
-    transition: all 300ms ease;
-  }
-
+.v-card__title {
+  word-break: normal;
   &:hover {
-    &::after {
-      width: calc(100% + 2em);
-      height: calc(100% + 2em);
-      top: -1em;
-      left: -1em;
-    }
+    color: grey;
   }
-
-  &.is-zigzag {
-    &::after {
-      @include is-zigzag;
-    }
-  }
-
-  &.is-striped {
-    &::after {
-      @include is-striped;
-    }
-  }
-
-  &.is-solid {
-    &::after {
-      @include is-solid;
-    }
-  }
-
-  &.is-boxes {
-    &::after {
-      @include is-boxes;
-    }
-  }
-
-  &.is-dotted {
-    &::after {
-      @include is-dotted;
-    }
-  }
-}
-
-.is-starting-soon {
-  position: absolute;
-  top: -1rem;
-  right: 0px;
 }
 </style>
