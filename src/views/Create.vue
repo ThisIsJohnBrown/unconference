@@ -157,8 +157,6 @@ export default {
       return [];
     },
     addSession() {
-      TimeStamp;
-      string_to_slug;
       this.titleErrors = this.checkTitle();
       this.detailsErrors = this.checkDetails();
       this.tagsErrors = this.checkTags();
