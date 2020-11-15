@@ -16,8 +16,17 @@
         </v-col>
       </v-row>
     </v-container>
-    <div class="container">
+    <v-divider></v-divider>
+    <div class="container" v-if="owned.length">
+      <h3 class="text-h4 mt-6 mb-6">Sessions you created</h3>
+      <SessionsList v-bind:sessions="owned" />
+    </div>
+    <div class="container" v-if="watched.length">
+      <h3 class="text-h4 mt-6 mb-6">Sessions on your agenda</h3>
       <SessionsList v-bind:sessions="watched" />
+    </div>
+    <div class="container" v-else>
+      <h3 class="text-h4 mt-6 mb-6">There are no sessions on your agenda</h3>
     </div>
   </div>
 </template>
@@ -29,7 +38,6 @@ import { getUserDetails } from "@/helpers";
 
 export default {
   name: "Profile",
-  data: function() {},
   asyncComputed: {
     async profileDetails() {
       if (this.username) {
@@ -58,6 +66,9 @@ export default {
       return this.$route.params.username
         ? this.profileDetails
         : this.$store.state.userDetails;
+    },
+    owned() {
+      return this.$store.state.ownedSessions;
     },
     watched() {
       if (this.$route.params.username) {

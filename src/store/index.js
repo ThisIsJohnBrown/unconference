@@ -23,7 +23,8 @@ export default new Vuex.Store({
     user: {},
     userDetails: {},
     profileDetails: {},
-    watchedSessions: []
+    watchedSessions: [],
+    ownedSessions: []
   },
   mutations: {
     ...vuexfireMutations,
@@ -35,6 +36,9 @@ export default new Vuex.Store({
     },
     updateWatched(state, payload) {
       state.watchedSessions = payload.watched;
+    },
+    updateOwned(state, payload) {
+      state.ownedSessions = payload.owned;
     }
   },
   actions: {
@@ -93,6 +97,17 @@ export default new Vuex.Store({
           let watch = v.data();
           watch.id = v.id;
           return watch;
+        })
+      });
+      const owned = await db
+        .collection("sessions")
+        .where("created_by", "==", id)
+        .get();
+      context.commit("updateOwned", {
+        owned: owned.docs.map(v => {
+          let owned = v.data();
+          owned.id = v.id;
+          return owned;
         })
       });
 
