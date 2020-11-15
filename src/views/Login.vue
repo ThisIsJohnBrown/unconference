@@ -1,54 +1,85 @@
 <template>
   <div>
-    <section class="section is-max-desktop">
-      <div class="container">
-        <h2 class="is-size-1 mb-6">
-          Log in to your account
-        </h2>
-        <div>
-          <form @submit.prevent="loginEmailPassword">
-            <input
-              class="input  is-size-3"
-              type="email"
-              placeholder="email address"
-              v-model="email"
-            />
-            <input
-              class="input  is-size-3"
-              type="password"
-              placeholder="password"
-              v-model="password"
-            />
-            <button class="button is-size-3">
-              Login
-            </button>
-          </form>
-          <p class="has-text-danger is-size-3">{{ error }}</p>
-        </div>
-        <h2 class="is-size-1 has-text-right mb-6">Or</h2>
-        <button
-          class="button is-size-3 is-pulled-right"
-          @click="loginWithGoogle()"
-        >
-          Login with Google
-        </button>
-      </div>
-    </section>
+    <v-container>
+      <v-row>
+        <v-col cols="6">
+          <h3 class="mb-6">Sign in with Google</h3>
+          <button
+            class="button text-h3 is-pulled-right mb-5"
+            @click="loginWithGoogle()"
+          >
+            <v-img :src="signinGoogleAsset"></v-img></button
+        ></v-col>
+        <v-col col="6">
+          <div>
+            <h3 class="mb-6">Sign in with email</h3>
+            <v-form>
+              <v-text-field
+                label="Email"
+                v-model="$v.email.$model"
+                :error-messages="emailErrors"
+                @focus="emailErrors = []"
+              ></v-text-field>
+              <v-text-field
+                type="password"
+                label="Password"
+                v-model="$v.password.$model"
+                :error-messages="passwordErrors"
+                @focus="passwordErrors = []"
+              ></v-text-field>
+
+              <p class="red--text">{{ error }}</p>
+              <v-btn class="mr-4" @click="loginEmailPassword">
+                submit
+              </v-btn>
+              <v-btn @click="clear">
+                clear
+              </v-btn>
+            </v-form>
+          </div>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script>
+import { validationMixin } from "vuelidate";
+import { required, email, minLength } from "vuelidate/lib/validators";
 import { emailPasswordLogin, googleLogin } from "@/firebase";
 export default {
   name: "Login",
+  mixins: [validationMixin],
   data: function() {
     return {
       email: "",
       password: "",
-      error: ""
+      error: "",
+      emailErrors: [],
+      passwordErrors: [],
+      signinGoogleAsset: require("@/assets/google-signin.png")
     };
   },
+  validations: {
+    email: { required, email },
+    password: { required, minLength: minLength(8) }
+  },
   methods: {
+    checkPassword() {
+      if (!this.$v.password.required) return ["Please enter a password"];
+      if (!this.$v.password.minLength) return ["Must be at least 8 characters"];
+      return [];
+    },
+    checkEmail() {
+      if (!this.$v.email.required) return ["Please enter an email address"];
+      if (!this.$v.email.email) return ["Must be valid e-mail"];
+      return [];
+    },
+    clear() {
+      this.$v.$reset();
+      this.email = "";
+      this.password = "";
+    },
     async loginWithGoogle() {
       const data = await googleLogin();
       if (data.user.uid) {
@@ -56,18 +87,23 @@ export default {
       }
     },
     async loginEmailPassword() {
-      try {
-        const details = await emailPasswordLogin({
-          email: this.email,
-          password: this.password
-        });
-        this.error =
-          details.success === false ? details.data.error.message : "";
-        if (!this.error) {
-          this.$router.push({ name: "Home" });
+      this.passwordErrors = this.checkPassword();
+      this.emailErrors = this.checkEmail();
+      const errors = [...this.passwordErrors, ...this.emailErrors];
+      if (!errors.length) {
+        try {
+          const details = await emailPasswordLogin({
+            email: this.email,
+            password: this.password
+          });
+          this.error =
+            details.success === false ? details.data.error.message : "";
+          if (!this.error) {
+            this.$router.push({ name: "Home" });
+          }
+        } catch (error) {
+          this.error = error.message;
         }
-      } catch (error) {
-        this.error = error.message;
       }
     }
   }

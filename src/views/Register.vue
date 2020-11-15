@@ -2,46 +2,58 @@
   <div>
     <v-container>
       <v-row>
-        <v-col col="6" offset="6">
-          <h2 class="is-size-1 mb-6">
-            Sign up for an account!
+        <v-col col="12" align="center">
+          <h2 class="text-h3 mt-6 mb-6">
+            Two easy ways to register
           </h2>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="6">
+          <h3 class="mb-6">Register with Google</h3>
+          <button
+            class="button text-h3 is-pulled-right mb-5"
+            @click="registerWithGoogle()"
+          >
+            <v-img :src="signinGoogleAsset"></v-img></button
+        ></v-col>
+        <v-col col="6">
           <div>
+            <h3 class="mb-6">Sign up with email</h3>
             <v-form>
               <v-text-field
-                v-model="username"
-                :error-messages="nameErrors"
+                label="Display Name"
+                v-model="$v.displayName.$model"
+                :error-messages="displayNameErrors"
+                @focus="displayNameErrors = []"
+              ></v-text-field>
+              <v-text-field
                 label="Username"
-                required
-                @input="$v.username.$touch()"
-                @blur="$v.username.$touch()"
+                v-model="$v.username.$model"
+                :error-messages="usernameErrors"
+                @focus="usernameErrors = []"
               ></v-text-field>
               <v-text-field
-                v-model="email"
+                label="Email"
+                v-model="$v.email.$model"
                 :error-messages="emailErrors"
-                label="E-mail"
-                required
-                @input="$v.email.$touch()"
-                @blur="$v.email.$touch()"
+                @focus="emailErrors = []"
               ></v-text-field>
               <v-text-field
-                v-model="password"
-                :error-messages="passwordErrors"
-                label="Password"
-                required
                 type="password"
-                @input="$v.email.$touch()"
-                @blur="$v.email.$touch()"
+                label="Password"
+                v-model="$v.password.$model"
+                :error-messages="passwordErrors"
+                @focus="passwordErrors = []"
               ></v-text-field>
-              <v-checkbox
+              <v-switch
+                :label="`Do you agree to our Code of Conduct?`"
                 v-model="checkbox"
                 :error-messages="checkboxErrors"
-                label="Do you agree to our Code of Conduct?"
-                required
-                @change="$v.checkbox.$touch()"
-                @blur="$v.checkbox.$touch()"
-              ></v-checkbox>
+                @focus="checkboxErrors = []"
+              ></v-switch>
 
+              <p class="red--text">{{ error }}</p>
               <v-btn class="mr-4" @click="submit">
                 submit
               </v-btn>
@@ -49,15 +61,7 @@
                 clear
               </v-btn>
             </v-form>
-            <p class="has-text-danger is-size-3">{{ error }}</p>
           </div>
-          <h2 class="is-size-1 has-text-right mb-6">Or</h2>
-          <button
-            class="button is-size-3 is-pulled-right"
-            @click="registerWithGoogle()"
-          >
-            Register with Google
-          </button>
         </v-col>
       </v-row>
     </v-container>
@@ -66,61 +70,77 @@
 
 <script>
 import { validationMixin } from "vuelidate";
-import { required, email } from "vuelidate/lib/validators";
+import { required, email, alphaNum, minLength } from "vuelidate/lib/validators";
 import { register, googleLogin } from "@/firebase";
 export default {
   name: "Register",
   mixins: [validationMixin],
   data: function() {
     return {
-      email: "asdf@asfd.com",
-      password: "asdfasdf",
-      username: "asdf1",
+      email: "asdf@asdf.com",
+      password: "asdf1",
+      username: "asdf",
+      displayName: "Asdf",
       error: "",
-      checkbox: false
+      checkbox: true,
+      signinGoogleAsset: require("@/assets/google-signin.png"),
+      displayNameErrors: [],
+      usernameErrors: [],
+      emailErrors: [],
+      passwordErrors: [],
+      checkboxErrors: []
     };
   },
   validations: {
-    username: { required },
+    username: { required, alphaNum },
     email: { required, email },
-    password: { required },
+    password: { required, minLength: minLength(8) },
+    displayName: { required },
     checkbox: {
       checked(val) {
         return val;
       }
     }
   },
-  computed: {
-    checkboxErrors() {
-      const errors = [];
-      !this.$v.checkbox.checked && errors.push("You must agree to continue!");
-      return errors;
-    },
-    nameErrors() {
-      const errors = [];
-      if (this.$v.username.$dirty) return errors;
-
-      !this.$v.username.required && errors.push("Username is required.");
-      return errors;
-    },
-    emailErrors() {
-      const errors = [];
-      if (!this.$v.email.$dirty) return errors;
-      !this.$v.email.email && errors.push("Must be valid e-mail");
-      !this.$v.email.required && errors.push("E-mail is required");
-      return errors;
-    },
-    passwordErrors() {
-      const errors = [];
-      this.$v.password.valid && errors.push("Must be valid password");
-      !this.$v.password.required && errors.push("Password is required");
-      return errors;
-    }
-  },
   methods: {
+    checkDisplayName() {
+      if (!this.$v.displayName.required) return ["Display name is required."];
+      return [];
+    },
+    checkUsername() {
+      if (!this.$v.username.required) return ["Username is required."];
+      if (!this.$v.username.alphaNum)
+        return ["Must only be letters and numbers."];
+      return [];
+    },
+    checkPassword() {
+      if (!this.$v.password.required) return ["Please enter a password"];
+      if (!this.$v.password.minLength) return ["Must be at least 8 characters"];
+      return [];
+    },
+    checkEmail() {
+      if (!this.$v.email.required) return ["Please enter an email address"];
+      if (!this.$v.email.email) return ["Must be valid e-mail"];
+      return [];
+    },
+    checkCheckboxErrors() {
+      if (!this.$v.checkbox.checked) return ["You must agree to register"];
+      return [];
+    },
     submit() {
-      this.$v.$touch();
-      if (!this.$v.$invalid) {
+      this.displayNameErrors = this.checkDisplayName();
+      this.usernameErrors = this.checkUsername();
+      this.passwordErrors = this.checkPassword();
+      this.emailErrors = this.checkEmail();
+      this.checkboxErrors = this.checkCheckboxErrors();
+      const errors = [
+        ...this.displayNameErrors,
+        ...this.usernameErrors,
+        ...this.passwordErrors,
+        ...this.emailErrors,
+        ...this.checkboxErrors
+      ];
+      if (!errors.length) {
         this.registerUser();
       }
     },
@@ -129,6 +149,7 @@ export default {
       this.username = "";
       this.email = "";
       this.password = "";
+      this.displayName = "";
       this.checkbox = false;
     },
     async registerWithGoogle() {
