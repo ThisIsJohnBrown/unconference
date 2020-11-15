@@ -43,7 +43,8 @@ export default {
         const raisedHand = {
           user: this.$store.state.user.uid,
           username: this.$store.state.userDetails.username,
-          avatarURL: `https://robohash.org/${this.$store.state.userDetails.username}.png`
+          avatarURL: `https://robohash.org/${this.$store.state.userDetails.username}.png`,
+          id: this.participantId
         };
         this.$store.dispatch("addRaisedHand", raisedHand);
       } else {
@@ -79,7 +80,7 @@ export default {
       return this.$store.state.session[0]?.active;
     }
   },
-  props: ["hasJoined", "joinSession"]
+  props: ["hasJoined", "joinSession", "participantId"]
 };
 </script>
 

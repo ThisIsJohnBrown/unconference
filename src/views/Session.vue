@@ -1,10 +1,9 @@
 <template>
-  <v-container v-if="session">
+  <v-container fluid ma-2 v-if="session">
     <v-row>
       <v-col cols="4" style="overflow:auto height: 80vh">
         <div>
           <div class="d-block pa-2 green white--text" v-if="isActive"></div>
-          <div class="d-block pa-2 red white--text" v-else></div>
         </div>
         <v-card outlined>
           <v-card-title>
@@ -21,23 +20,41 @@
           v-bind:participants="participants"
           v-bind:api="api"
           v-if="isOwner"
-          v-bind:joinSession="joinSession"
+          @joinSession="joinSession"
+          @toggleVisibleParticipant="toggleVisibleParticipant"
+          @toggleHighlightedParticipant="toggleHighlightedParticipant"
+          @toggleSpeakerView="toggleSpeakerView"
+          @changeSessionType="changeSessionType"
+          @startImmediately="startImmediately"
         />
         <SessionWatcherPanel
           v-bind:hasJoined="hasJoined"
-          v-bind:joinSession="joinSession"
+          @joinSession="joinSession"
           v-if="!isOwner"
+          v-bind:participantId="participantId"
         />
       </v-col>
       <v-col>
         <v-card outlined>
           <v-responsive :aspect-ratio="16 / 9">
-            <div v-if="isBefore && !isActive">
-              This session will start soon!
+            <div v-if="isBefore && !isActive" align="center">
+              <h3 class="text-h3 mt-3 mb-n6">Starting soon!</h3>
+              <v-img
+                :aspect-ratio="16 / 9"
+                contain
+                :src="require('@/assets/mermaid.png')"
+              ></v-img>
             </div>
             <div class="jitsi-block" v-if="isActive"></div>
-            <div v-if="isComplete">
-              This session is over. Thanks for attending!
+            <div v-if="isComplete" align="center">
+              <h3 class="text-h3 mt-3 mb-n6">
+                This session is over. Stay safe out there!
+              </h3>
+              <v-img
+                :aspect-ratio="16 / 9"
+                contain
+                :src="require('@/assets/safe.png')"
+              ></v-img>
             </div>
           </v-responsive>
         </v-card>
@@ -60,15 +77,45 @@ export default {
       participants: [],
       hiddenParticipantIds: [],
       randomSlug: "",
-      randomPassword: ""
+      randomPassword: "",
+      speakerView: false,
+      doStartImmediately: false,
+      participantId: ""
     };
   },
   methods: {
-    initVisibleParticipants(id) {
+    changeSessionType(type) {
+      const me = this.api
+        .getParticipantsInfo()
+        .filter(
+          p => p.displayName === this.$store.state.userDetails.username
+        )[0];
+      if (type === "discussion") {
+        type;
+      } else if (type === "panel") {
+        this.speakerView = false;
+        this.$store.dispatch("updateSession", {
+          id: this.$store.state.session[0].id,
+          data: {
+            speaker: ""
+          }
+        });
+      } else if (type === "presentation") {
+        this.speakerView = true;
+        this.$store.dispatch("updateSession", {
+          id: this.$store.state.session[0].id,
+          data: {
+            speaker: me.participantId
+          }
+        });
+      }
+    },
+    initModerator(id) {
       this.$store.dispatch("updateSession", {
         id: this.$store.state.session[0].id,
         data: {
-          visible: [id]
+          visible: [id],
+          speaker: id
         }
       });
     },
@@ -79,6 +126,20 @@ export default {
           visible: [...this.$store.state.session[0].visible, id]
         }
       });
+    },
+    toggleSpeakerView() {
+      this.speakerView = !this.speakerView;
+      // this.api.executeCommand("toggleTileView");
+      this.api.executeCommand(
+        "setSpeakerView",
+        JSON.stringify({
+          enabled: this.speakerView,
+          speaker: this.visibleParticipants[0]
+        })
+      );
+    },
+    startImmediately() {
+      this.doStartImmediately = true;
     },
     initJitsi() {
       this.hasJoined = true;
@@ -99,17 +160,13 @@ export default {
             "microphone",
             "camera",
             "closedcaptions",
-            "desktop",
             "fullscreen",
             "fodeviceselection",
             "hangup",
-            "chat",
             "settings",
-            "raisehand",
             "videoquality",
             "filmstrip",
-            "tileview",
-            "help"
+            "tileview"
           ]
           // filmStripOnly: true
         },
@@ -118,8 +175,6 @@ export default {
           displayName: this.$store.state.userDetails.username
         }
       };
-
-      console.log("--options", options);
 
       if (this.isOwner) {
         this.isOwner;
@@ -144,19 +199,40 @@ export default {
         e;
       });
       this.api.addEventListener("participantRoleChanged", e => {
-        console.log("ROLE CHANGED", e.role, this.visibleParticipants.length);
         if (e.role == "moderator" && this.visibleParticipants.length === 0) {
-          this.initVisibleParticipants(e.id);
-          console.log("SETTING PASSWORD");
+          this.initModerator(e.id);
           this.api.executeCommand(
             "password",
             this.randomPassword || this.$store.state.session[0].randomPassword
           );
         }
       });
+      this.api.addEventListener("videoConferenceJoined", e => {
+        this.participantId = e.id;
+        if (this.speaker) {
+          this.api.executeCommand(
+            "setSpeakerView",
+            JSON.stringify({
+              enabled: false,
+              speaker: this.speaker
+            })
+          );
+        } else {
+          this.api.executeCommand(
+            "setSpeakerView",
+            JSON.stringify({
+              enabled: true
+            })
+          );
+        }
+      });
       this.api.addEventListener("passwordRequired", () => {
-        console.log("PASSWORD REQUIRED");
-        console.log(this.api);
+        this.api.executeCommand(
+          "password",
+          this.$store.state.session[0].randomPassword
+        );
+      });
+      this.api.addEventListener("participantLeft", () => {
         this.api.executeCommand(
           "password",
           this.$store.state.session[0].randomPassword
@@ -168,6 +244,30 @@ export default {
         id: this.$store.state.session[0].id
       });
       this.initJitsi();
+    },
+    toggleHighlightedParticipant(id) {
+      this.speakerView = false;
+      this.$store.dispatch("updateSession", {
+        id: this.$store.state.session[0].id,
+        data: {
+          speaker: this.speaker === id ? "" : id
+        }
+      });
+    },
+    toggleVisibleParticipant(id) {
+      const visibleIds = [...this.visibleParticipants];
+      const index = visibleIds.indexOf(id);
+      if (index === -1) {
+        visibleIds.push(id);
+      } else {
+        visibleIds.splice(index, 1);
+      }
+      this.$store.dispatch("updateSession", {
+        id: this.$store.state.session[0].id,
+        data: {
+          visible: visibleIds
+        }
+      });
     }
   },
   async mounted() {
@@ -185,8 +285,14 @@ export default {
     session() {
       return this.$store.state.session[0];
     },
+    startTime() {
+      return new Date(this.session.startTime.seconds * 1000);
+    },
+    endTime() {
+      return new Date(this.session.endTime.seconds * 1000);
+    },
     visibleParticipants() {
-      return this.$store.state.session[0]?.visible;
+      return this.session?.visible;
     },
     authenticated() {
       return this.$store.state.user.uid;
@@ -195,35 +301,58 @@ export default {
       return this.session?.created_by === this.$store.state.user.uid;
     },
     isActive() {
-      return this.$store.state.session[0]?.active;
+      return this.session?.active;
     },
     isBefore() {
       return (
-        !this.$store.state.session[0].isActive &&
-        !this.$store.state.session[0].endTime
+        !this.isActive && !this.session.activeTime && this.endTime > new Date()
       );
     },
     isComplete() {
-      return (
-        !this.$store.state.session[0].isActive &&
-        this.$store.state.session[0].endTime
-      );
+      return !this.isActive && this.endTime < new Date();
+    },
+    speaker() {
+      return this.session?.speaker;
+    },
+    isOpen() {
+      return this.session?.open;
     }
   },
   watch: {
     isActive(newActive, oldActive) {
       if (newActive === true && oldActive !== newActive) {
-        setTimeout(this.initJitsi, 1000);
+        if (this.doStartImmediately) {
+          setTimeout(this.initJitsi, 100);
+        } else {
+          setTimeout(this.initJitsi, 2000);
+        }
       }
+    },
+    speaker(to) {
+      if (this.isActive) {
+        const enabled = to ? false : true;
+        // if (to) {
+        this.api.executeCommand(
+          "setSpeakerView",
+          JSON.stringify({
+            enabled,
+            speaker: to
+          })
+        );
+      }
+      // }
     },
     visibleParticipants(to) {
       if (this.hasJoined) {
         const ids = this.api.getParticipantsInfo().map(p => p.participantId);
+        const missing = ids.filter(id =>
+          to.indexOf(id) === -1 ? false : true
+        );
         this.api.executeCommand(
           "toggleParticipant",
           JSON.stringify({
             ids,
-            visible: to
+            visible: missing
           })
         );
       }

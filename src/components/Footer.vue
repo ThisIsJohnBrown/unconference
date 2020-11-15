@@ -1,14 +1,13 @@
 <template>
-  <v-footer inset width="auto" class="py-12">
-    <v-container>
-      <v-row justify="center">
-        <v-col lg="6" md="6" cols="12" align-self="center">
-          <strong>unconference</strong> The source code is licensed
-          <a href="http://opensource.org/licenses/mit-license.php">MIT</a>.
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-footer>
+  <v-card height="150">
+    <v-footer absolute class="font-weight-medium">
+      <v-col class="text-center" cols="12">
+        {{ new Date().getFullYear() }} — <strong>unconference</strong> - The
+        source code is licensed
+        <a href="http://opensource.org/licenses/mit-license.php">MIT</a>
+      </v-col>
+    </v-footer>
+  </v-card>
 </template>
 
 <script>
