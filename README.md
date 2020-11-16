@@ -31,7 +31,7 @@ yarn install
 yarn serve
 ```
 
-### Firebase setup
+## Firebase setup
 You will need to set up a Firebase app that has Firestore and Authentication. I used both Email and Google authentication.
 
 You will need two Firestore collections
@@ -58,12 +58,32 @@ You will need two Firestore collections
     details: string,
     created_by: string, // id of the user who created the session
     tags: array[string],
-    handsRaised: object, // Jitsi info and user details of participants
-    questions: object, // Jitsi info and user details of participants
+    handsRaised: array[object], // Jitsi info and user details of participants
+    questions: array[object], // Jitsi info and user details of participants
     visible: array[string], // Jitsi ids of participants
     kicked: array[string] // Jitsi ids of participants
 }
 ```
+
+## Generators
+
+There are some lightweight generators included for creating an entire conference for testing, mainly using [Faker](https://marak.github.io/faker.js/index.html).
+
+`node src/generators.js --clearUsers` -- Delete all users, both email and Google authenticated
+
+`node src/generators.js --clearSessions` -- Delete all sessions
+
+`node src/generators.js --users=5` -- Generate email authenticated users
+
+`node src/generators.js --sessions=20` -- Generate sessions within an hour before or after the current time (must have users before running this step)
+
+## Jitsi
+
+You will need to be running [this forked version of jitsi-meet](https://github.com/thisisJohnBrown/jitsi-meet). This has two specific additions, new commands available in `external_apis.js`.
+
+`toggleParticipant` - Allows for the hiding of the video panel of participants in TileView. Creates a synced panel environment and disables the ability for those toggled off from unmuting.
+
+`setSpeakerView` - Forces all participants to set the chosen speaker in large video mode. Creates a synced presentation environment.
 
 # Usage
 
