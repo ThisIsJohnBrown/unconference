@@ -3,8 +3,8 @@
     <v-container>
       <v-row class="ma-6" align="center" justify="center">
         <v-img :src="shapes[0]" class="ma-6"></v-img>
-        <h1 class="text-h1 ma-6">unconference</h1>
-        <h2 class="text-h4 ma-6">
+        <h1 class="text-h3 ma-6 text-md-h1">unconference</h1>
+        <h2 class="text-h5 ma-6  text-md-h4">
           A new take on conferences during remote times
         </h2>
         <v-img :src="shapes[1]" class="ma-6"></v-img>
@@ -17,13 +17,13 @@
         justify="center"
         color="teal lighten-4"
       >
-        <v-col cols="6" align="center" justify="center">
+        <v-col cols="12" sm="6" align="center" justify="center">
           <h3 class="text-h5">Have an idea?</h3>
           <v-btn class="mt-4" outlined tile :to="{ name: `Create` }"
             >Create a session</v-btn
           >
         </v-col>
-        <v-col cols="6" align="center" justify="center">
+        <v-col cols="12" sm="6" align="center" justify="center">
           <h3 class="text-h5">Want to join?</h3>
           <v-btn class="mt-4" outlined tile>Register</v-btn>
         </v-col>
@@ -31,8 +31,8 @@
     </v-container>
     <v-container fill-height>
       <v-row align="center" justify="center"
-        ><v-col cols="8"><v-img :src="images[0]"></v-img></v-col
-        ><v-col cols="4"
+        ><v-col cols="12" md="8"><v-img :src="images[0]"></v-img></v-col
+        ><v-col cols="12" md="4"
           ><h3 class="text-h3 mb-5">Community Decides</h3>
           <p>
             Attendees guide the topics, because anyone can organize or attend a
@@ -41,18 +41,18 @@
         ></v-row
       >
       <v-row align="center" justify="center"
-        ><v-col cols="4"
+        ><v-col cols="12" md="4"
           ><h3 class="text-h3 mb-5">Many-to-many</h3>
           <p>
             More than one-way streaming or pre-recorded talks, you can ask
             questions and interact in real time with the hosts and attendees of
             the sessions
           </p></v-col
-        ><v-col cols="8"><v-img :src="images[1]"></v-img></v-col
+        ><v-col cols="12" md="8"><v-img :src="images[1]"></v-img></v-col
       ></v-row>
       <v-row align="center" justify="center"
-        ><v-col cols="8"><v-img :src="images[2]"></v-img></v-col
-        ><v-col cols="4"
+        ><v-col cols="12" md="8"><v-img :src="images[2]"></v-img></v-col
+        ><v-col cols="12" md="4"
           ><h3 class="text-h3 mb-5">Infinite tracks</h3>
           <p>
             There’s no one track of talks to listen to. You can bounce between
@@ -61,13 +61,13 @@
         ></v-row
       >
       <v-row align="center" justify="center"
-        ><v-col cols="4"
+        ><v-col cols="12" md="4"
           ><h3 class="text-h3 mb-5">Prioritizing safety</h3>
           <p>
             As this is an open platform for communication, all attendees must
             register and adhere to a code of conduct. No exceptions.
           </p></v-col
-        ><v-col cols="8"><v-img :src="images[3]"></v-img></v-col
+        ><v-col cols="12" md="8"><v-img :src="images[3]"></v-img></v-col
       ></v-row>
     </v-container>
   </div>

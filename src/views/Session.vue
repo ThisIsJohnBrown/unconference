@@ -35,7 +35,19 @@
         />
       </v-col>
       <v-col>
-        <v-card outlined>
+        <v-card outlined v-if="tempToggle">
+          <v-responsive :aspect-ratio="16 / 9" align="center">
+            <h3 class="text-h3 mt-3 mb-n6">
+              Stay safe out there.
+            </h3>
+            <v-img
+              :aspect-ratio="16 / 9"
+              contain
+              :src="require('@/assets/safe.png')"
+            ></v-img>
+          </v-responsive>
+        </v-card>
+        <v-card outlined v-else>
           <v-responsive :aspect-ratio="16 / 9">
             <div v-if="isBefore && !isActive" align="center">
               <h3 class="text-h3 mt-3 mb-n6">Starting soon!</h3>
@@ -46,16 +58,6 @@
               ></v-img>
             </div>
             <div class="jitsi-block" v-if="isActive"></div>
-            <div v-if="isComplete" align="center">
-              <h3 class="text-h3 mt-3 mb-n6">
-                This session is over. Stay safe out there!
-              </h3>
-              <v-img
-                :aspect-ratio="16 / 9"
-                contain
-                :src="require('@/assets/safe.png')"
-              ></v-img>
-            </div>
           </v-responsive>
         </v-card>
       </v-col>
@@ -72,7 +74,7 @@ export default {
   data: function() {
     return {
       slug: "another-jitsi-test",
-      api: {},
+      api: null,
       hasJoined: false,
       participants: [],
       hiddenParticipantIds: [],
@@ -80,7 +82,8 @@ export default {
       randomPassword: "",
       speakerView: false,
       doStartImmediately: false,
-      participantId: ""
+      participantId: "",
+      tempToggle: false
     };
   },
   methods: {
@@ -142,102 +145,105 @@ export default {
       this.doStartImmediately = true;
     },
     initJitsi() {
-      this.hasJoined = true;
-      const domain = "localhost:8081";
-      const options = {
-        roomName: `${this.slug}-${this.randomSlug ||
-          this.$store.state.session[0].randomSlug}`,
-        parentNode: document.querySelector(".jitsi-block"),
-        password:
-          this.randomPassword || this.$store.state.session[0].randomPassword,
-        configOverwrite: {
-          startWithAudioMuted: true,
-          startWithVideoMuted: true,
-          prejoinPageEnabled: false
-        },
-        interfaceConfigOverwrite: {
-          TOOLBAR_BUTTONS: [
-            "microphone",
-            "camera",
-            "closedcaptions",
-            "fullscreen",
-            "fodeviceselection",
-            "hangup",
-            "settings",
-            "videoquality",
-            "filmstrip",
-            "tileview"
-          ]
-          // filmStripOnly: true
-        },
-        userInfo: {
-          // email: this.$store.state.user.email,
-          displayName: this.$store.state.userDetails.username
+      console.log("!!!!!!!!!!");
+      if (!this.api) {
+        this.hasJoined = true;
+        const domain = "localhost:8081";
+        const options = {
+          roomName: `${this.slug}-${this.randomSlug ||
+            this.$store.state.session[0].randomSlug}`,
+          parentNode: document.querySelector(".jitsi-block"),
+          password:
+            this.randomPassword || this.$store.state.session[0].randomPassword,
+          configOverwrite: {
+            startWithAudioMuted: true,
+            startWithVideoMuted: true,
+            prejoinPageEnabled: false
+          },
+          interfaceConfigOverwrite: {
+            TOOLBAR_BUTTONS: [
+              "microphone",
+              "camera",
+              "closedcaptions",
+              "fullscreen",
+              "fodeviceselection",
+              "hangup",
+              "settings",
+              "videoquality",
+              "filmstrip",
+              "tileview"
+            ]
+            // filmStripOnly: true
+          },
+          userInfo: {
+            // email: this.$store.state.user.email,
+            displayName: this.$store.state.userDetails.username
+          }
+        };
+
+        if (this.isOwner) {
+          this.isOwner;
         }
-      };
 
-      if (this.isOwner) {
-        this.isOwner;
-      }
-
-      // eslint-disable-next-line
+        // eslint-disable-next-line
       this.api = new JitsiMeetExternalAPI(domain, options);
-      this.api.executeCommand(
-        "avatarUrl",
-        `https://robohash.org/${this.$store.state.userDetails.username}.png` // this.$store.state.userDetails?.avatar
-      );
-      this.api.executeCommand("toggleTileView");
-      this.api.addEventListener("participantJoined", e => {
-        this.participants = this.api.getParticipantsInfo();
         this.api.executeCommand(
-          "toggleParticipant",
-          JSON.stringify({
-            ids: this.participants,
-            visible: this.visibleParticipants
-          })
+          "avatarUrl",
+          `https://robohash.org/${this.$store.state.userDetails.username}.png` // this.$store.state.userDetails?.avatar
         );
-        e;
-      });
-      this.api.addEventListener("participantRoleChanged", e => {
-        if (e.role == "moderator" && this.visibleParticipants.length === 0) {
-          this.initModerator(e.id);
+        this.api.executeCommand("toggleTileView");
+        this.api.addEventListener("participantJoined", e => {
+          this.participants = this.api.getParticipantsInfo();
+          this.api.executeCommand(
+            "toggleParticipant",
+            JSON.stringify({
+              ids: this.participants,
+              visible: this.visibleParticipants
+            })
+          );
+          e;
+        });
+        this.api.addEventListener("participantRoleChanged", e => {
+          if (e.role == "moderator" && this.visibleParticipants.length === 0) {
+            this.initModerator(e.id);
+            this.api.executeCommand(
+              "password",
+              this.randomPassword || this.$store.state.session[0].randomPassword
+            );
+          }
+        });
+        this.api.addEventListener("videoConferenceJoined", e => {
+          this.participantId = e.id;
+          if (this.speaker) {
+            this.api.executeCommand(
+              "setSpeakerView",
+              JSON.stringify({
+                enabled: false,
+                speaker: this.speaker
+              })
+            );
+          } else {
+            this.api.executeCommand(
+              "setSpeakerView",
+              JSON.stringify({
+                enabled: true
+              })
+            );
+          }
+        });
+        this.api.addEventListener("passwordRequired", () => {
           this.api.executeCommand(
             "password",
-            this.randomPassword || this.$store.state.session[0].randomPassword
+            this.$store.state.session[0].randomPassword
           );
-        }
-      });
-      this.api.addEventListener("videoConferenceJoined", e => {
-        this.participantId = e.id;
-        if (this.speaker) {
+        });
+        this.api.addEventListener("participantLeft", () => {
           this.api.executeCommand(
-            "setSpeakerView",
-            JSON.stringify({
-              enabled: false,
-              speaker: this.speaker
-            })
+            "password",
+            this.$store.state.session[0].randomPassword
           );
-        } else {
-          this.api.executeCommand(
-            "setSpeakerView",
-            JSON.stringify({
-              enabled: true
-            })
-          );
-        }
-      });
-      this.api.addEventListener("passwordRequired", () => {
-        this.api.executeCommand(
-          "password",
-          this.$store.state.session[0].randomPassword
-        );
-      });
-      this.api.addEventListener("participantLeft", () => {
-        this.api.executeCommand(
-          "password",
-          this.$store.state.session[0].randomPassword
-        );
-      });
+        });
+      }
     },
     joinSession() {
       this.$store.dispatch("updateJoined", {
@@ -320,7 +326,12 @@ export default {
   },
   watch: {
     isActive(newActive, oldActive) {
+      console.log("!!!!!!", newActive, oldActive);
+      if (oldActive === true && newActive === false) {
+        this.tempToggle = true;
+      }
       if (newActive === true && oldActive !== newActive) {
+        console.log("!!!!!!! inside");
         if (this.doStartImmediately) {
           setTimeout(this.initJitsi, 100);
         } else {
@@ -364,5 +375,8 @@ export default {
 <style lang="scss" scoped>
 .jitsi-block {
   height: 100%;
+}
+.v-card__title {
+  word-break: normal;
 }
 </style>

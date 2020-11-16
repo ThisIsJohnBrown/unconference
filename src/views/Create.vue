@@ -102,7 +102,7 @@ export default {
   mixins: [validationMixin],
   data: () => ({
     tags: ["Tips & Tricks", "Soft Skills", "Technical"],
-    addedTags: ["VueJS"],
+    addedTags: [],
     times: [
       { val: "12:00-12:30", time: "12:00-12:30" },
       { val: "12:30-13:00", time: "12:30-1:00" },
@@ -116,9 +116,8 @@ export default {
       { val: "discussion", pretty: "Open Discussion" }
     ],
     type: { val: "panel", pretty: "Moderated Panel" },
-    title: "Long Session Title",
-    details:
-      "Non rerum ullam amet et illum rerum nihil unde excepturi. Minus facere saepe nesciunt ut reprehenderit perspiciatis iste corrupti mollitia. Earum nihil omnis officiis atque consequatur natus sit aut. Eos odit earum excepturi.",
+    title: "",
+    details: "",
     titleErrors: [],
     detailsErrors: [],
     tagsErrors: [],

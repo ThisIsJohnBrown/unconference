@@ -6,7 +6,11 @@
         v-for="sessionTimePeriod in sessions"
         :key="sessionTimePeriod.time"
       >
-        <h3 class="is-size-3 m-4">{{ sessionTimePeriod.prettyTime }}</h3>
+        <v-row
+          ><v-col align="center">
+            <h3 class="text-h4 ma-4">{{ sessionTimePeriod.prettyTime }}</h3>
+          </v-col></v-row
+        >
         <v-row>
           <v-col
             v-for="(session, i) in sessionTimePeriod.sessionGroup"
