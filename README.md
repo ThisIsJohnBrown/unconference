@@ -1,27 +1,25 @@
+![shapes2](src/assets/shapes2.png)
+
 # Overview
+## A new take on conferences during remote times
+
 This is a project for the [#HackingFromHome Hackathon](https://mattermost.com/hackfest2020/).
 
 This project is inspired by the unconferences of the past, in the before times, when we could gather together to learn from each other and share ideas. That has become so hard during the Covid-19 moment we're living through, because there aren't many directly interactive spaces for this sort of conversation.
 
-## The Big Idea
+This is the frontend website portion of the project. It will be hosted at [unconference.dev](https://unconference.dev).
 
-This is an attempt to create a safe, free-form environment online to gather, share, and present ideas.
+![shapes1](src/assets/shapes1.png)
 
-## Participants
+## Technologies
 
-Currently, it's just me! But if you want to work on this with me, join [the Mattermost instance](https://hackathon.cloud.mattermost.com/) or email me!
+Made with [VueJS](https://vuejs.org/) and [Vuetify](https://vuetifyjs.com/) frontend, a [Firestore](https://firebase.google.com/products/firestore) backend, and [Vuexfire](https://vuefire.vuejs.org/vuexfire/) for binding it all together.
 
-## Design files
+## Config files
 
-If you want to see any design files we're working on, there's [an open Figma board](https://www.figma.com/file/S5qv4XPBP7dyHdeJ9i0w2W/Unconference-Design-Ideas).
+You will need a `firebase.config.js` file in order to run this project. This can be retrieved from the Firebase admin.
 
-# Project
-
-As it stands now, this project will mainly be a website wrapper for an instance of [Jitsi](https://jitsi.org/).
-
-After a baseline is set with the website, we will focus on forking and updating [jitsi-meet](https://github.com/jitsi/jitsi-meet) in order to extend features and functionality to more closely align with the desired presentational environment.
-
-## Setup
+## Setup - Vue CLI
 ```
 yarn install
 ```
@@ -41,5 +39,11 @@ yarn build
 yarn lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+# Usage
+
+Here's a [demo video](https://www.dropbox.com/s/1nst9b240bkpb8z/demo1.mov?dl=0) showing you a moderated panel, syncing up Jitsi streams.
+
+## UI
+
+![admin-ui](repo-assets/admin-ui.jpg)
+![session-panel](repo-assets/session-panel.jpg)
