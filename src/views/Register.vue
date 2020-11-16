@@ -77,12 +77,12 @@ export default {
   mixins: [validationMixin],
   data: function() {
     return {
-      email: "asdf@asdf.com",
-      password: "asdf1",
-      username: "asdf",
-      displayName: "Asdf",
+      email: "",
+      password: "",
+      username: "",
+      displayName: "",
       error: "",
-      checkbox: true,
+      checkbox: false,
       signinGoogleAsset: require("@/assets/google-signin.png"),
       displayNameErrors: [],
       usernameErrors: [],

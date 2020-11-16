@@ -2,17 +2,35 @@
   <div>
     <section class="section is-max-desktop">
       <div class="container">
-        <h2 class="text-h3 ml-4 pl-4 mt-4">Current sessions</h2>
+        <h2
+          class="text-h3 ml-4 pl-4 mt-4"
+          v-if="organizedSessions.current.length"
+        >
+          Current sessions
+        </h2>
+        <h2 class="text-h3 ml-4 pl-4 mt-4" v-else>
+          No sessions currently active
+        </h2>
         <SessionsList
           v-bind:sessions="organizedSessions.current"
           v-bind:showTimes="false"
         />
-        <h2 class="text-h3 ml-4 pl-4 mt-4 mb-5">Upcoming sessions</h2>
+        <h2
+          class="text-h3 ml-4 pl-4 mt-4 mb-5"
+          v-if="organizedSessions.upcoming.length"
+        >
+          Upcoming sessions
+        </h2>
         <SessionsList
           v-bind:sessions="organizedSessions.upcoming"
           v-bind:showTimes="true"
         />
-        <h2 class="text-h3 ml-4 pl-4 mt-4">Previous sessions</h2>
+        <h2
+          class="text-h3 ml-4 pl-4 mt-4"
+          v-if="organizedSessions.expired.length"
+        >
+          Previous sessions
+        </h2>
         <SessionsList
           v-bind:sessions="organizedSessions.expired"
           v-bind:showTimes="true"
