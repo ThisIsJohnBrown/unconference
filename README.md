@@ -1,6 +1,6 @@
 ![shapes2](src/assets/shapes2.png)
 
-# Overview
+# unconference
 ## A new take on conferences during remote times
 
 This is a project for the [#HackingFromHome Hackathon](https://mattermost.com/hackfest2020/).
@@ -14,6 +14,8 @@ This is the frontend website portion of the project. It will be hosted at [uncon
 ## Technologies
 
 Made with [VueJS](https://vuejs.org/) and [Vuetify](https://vuetifyjs.com/) frontend, a [Firestore](https://firebase.google.com/products/firestore) backend, and [Vuexfire](https://vuefire.vuejs.org/vuexfire/) for binding it all together.
+
+Please combine with [this forked version of jitsi-meet](https://github.com/thisisJohnBrown/jitsi-meet), in order to get the added features and functionality of syncing views between participants.
 
 ## Config files
 
