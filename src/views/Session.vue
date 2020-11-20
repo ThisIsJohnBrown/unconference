@@ -145,10 +145,9 @@ export default {
       this.doStartImmediately = true;
     },
     initJitsi() {
-      console.log("!!!!!!!!!!");
       if (!this.api) {
         this.hasJoined = true;
-        const domain = "localhost:8081";
+        const domain = process.env.VUE_APP_JITSI_URL;
         const options = {
           roomName: `${this.slug}-${this.randomSlug ||
             this.$store.state.session[0].randomSlug}`,
@@ -326,12 +325,10 @@ export default {
   },
   watch: {
     isActive(newActive, oldActive) {
-      console.log("!!!!!!", newActive, oldActive);
       if (oldActive === true && newActive === false) {
         this.tempToggle = true;
       }
       if (newActive === true && oldActive !== newActive) {
-        console.log("!!!!!!! inside");
         if (this.doStartImmediately) {
           setTimeout(this.initJitsi, 100);
         } else {

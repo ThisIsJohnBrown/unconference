@@ -24,7 +24,8 @@ export default new Vuex.Store({
     userDetails: {},
     profileDetails: {},
     watchedSessions: [],
-    ownedSessions: []
+    ownedSessions: [],
+    conference: {}
   },
   mutations: {
     ...vuexfireMutations,
@@ -65,6 +66,13 @@ export default new Vuex.Store({
       const data = await bindFirestoreRef(
         "sessionCreators",
         db.collection("users")
+      );
+      return data;
+    }),
+    bindConference: firestoreAction(async ({ bindFirestoreRef }, id) => {
+      const data = await bindFirestoreRef(
+        "conference",
+        db.collection("conferences").doc(id)
       );
       return data;
     }),

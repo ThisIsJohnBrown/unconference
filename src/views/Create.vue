@@ -39,18 +39,35 @@
               outlined
             >
             </v-combobox>
-            <v-select
-              class="mt-3"
-              v-model="time"
-              :items="times"
-              :error-messages="timeErrors"
-              @focus="timeErrors = []"
-              item-text="time"
-              item-value="val"
-              label="Time slot"
-              return-object
-              outlined
-            ></v-select>
+            <v-row>
+              <v-col cols="6">
+                <v-select
+                  class="mt-3"
+                  v-model="startTime"
+                  :items="startTimes"
+                  :error-messages="startTimeErrors"
+                  @focus="startTimeErrors = []"
+                  item-text="time"
+                  item-value="val"
+                  label="Start time"
+                  return-object
+                  outlined
+                ></v-select>
+              </v-col>
+              <v-col cols="6">
+                <v-select
+                  class="mt-3"
+                  v-model="endTime"
+                  :items="endTimes"
+                  :error-messages="endTimeErrors"
+                  @focus="endTimeErrors = []"
+                  item-text="time"
+                  item-value="val"
+                  label="End time"
+                  return-object
+                  outlined
+                ></v-select> </v-col
+            ></v-row>
             <v-select
               v-model="type"
               :items="types"
@@ -103,13 +120,8 @@ export default {
   data: () => ({
     tags: ["Tips & Tricks", "Soft Skills", "Technical"],
     addedTags: [],
-    times: [
-      { val: "12:00-12:30", time: "12:00-12:30" },
-      { val: "12:30-13:00", time: "12:30-1:00" },
-      { val: "13:00-13:30", time: "1:00-1:30" },
-      { val: "13:30-14:00", time: "1:30-2:00" }
-    ],
-    time: { val: "12:00-12:30", time: "12:00-12:30" },
+    startTime: {},
+    endTime: {},
     types: [
       { val: "presentation", pretty: "Presentation" },
       { val: "panel", pretty: "Moderated Panel" },
@@ -121,7 +133,8 @@ export default {
     titleErrors: [],
     detailsErrors: [],
     tagsErrors: [],
-    timeErrors: [],
+    startTimeErrors: [],
+    endTimeErrors: [],
     typeErrors: [],
     hasSubmitted: false
   }),
@@ -129,7 +142,8 @@ export default {
     title: { required },
     details: { required, minLength: minLength(50) },
     type: { required },
-    time: { required },
+    startTime: { required },
+    endTime: { required },
     addedTags: { required }
   },
   methods: {
@@ -147,8 +161,12 @@ export default {
       if (!this.$v.addedTags.required) return ["At least one tag is required."];
       return [];
     },
-    checkTime() {
-      if (!this.$v.time.required) return ["Please choose a time"];
+    checkStartTime() {
+      if (!this.$v.startTime.required) return ["Please choose a time"];
+      return [];
+    },
+    checkEndTime() {
+      if (!this.$v.endTime.required) return ["Please choose a time"];
       return [];
     },
     checkType() {
@@ -159,22 +177,21 @@ export default {
       this.titleErrors = this.checkTitle();
       this.detailsErrors = this.checkDetails();
       this.tagsErrors = this.checkTags();
-      this.timeErrors = this.checkTime();
+      this.startTimeErrors = this.checkStartTime();
+      this.endTimeErrors = this.checkEndTime();
       this.typeErrors = this.checkType();
       const errors = [
         ...this.titleErrors,
         ...this.detailsErrors,
         ...this.tagsErrors,
-        ...this.timeErrors,
+        ...this.startTimeErrors,
+        ...this.endTimeErrors,
         ...this.typeErrors
       ];
       if (!errors.length) {
         this.hasSubmitted = true;
-        const times = this.time.val.split("-").map(time => time.split(":"));
-        //eslint-disable-next-line
-        const startTime = TimeStamp.fromMillis((new Date()).setHours(times[0][0], times[0][1], 0, 0))
-        //eslint-disable-next-line
-        const endTime = TimeStamp.fromMillis((new Date()).setHours(times[1][0] - 1, times[1][1], 0, 0));
+        const startTime = TimeStamp.fromMillis(this.startTime.val * 1000);
+        const endTime = TimeStamp.fromMillis(this.endTime.val * 1000);
         string_to_slug;
         this.$store.dispatch("addSession", {
           startTime,
@@ -197,6 +214,33 @@ export default {
   computed: {
     isAuthenticated() {
       return this.$store.state.user?.uid;
+    },
+    startTimes() {
+      if (!this.$store.state.conference?.times) return [];
+      return this.$store.state.conference?.times.map(t => {
+        let [hour, minute] = new Date(t.start.seconds * 1000)
+          .toLocaleTimeString("en-US")
+          .split(/:| /);
+        return {
+          time: `${hour}:${minute}`,
+          val: t.start.seconds
+        };
+      });
+    },
+    endTimes() {
+      if (!this.$store.state.conference?.times) return [];
+      let times = [];
+      this.$store.state.conference?.times.forEach(t => {
+        if (t.end.seconds < this.startTime.val + 100) return false;
+        let [hour, minute] = new Date(t.end.seconds * 1000)
+          .toLocaleTimeString("en-US")
+          .split(/:| /);
+        times.push({
+          time: `${hour}:${minute}`,
+          val: t.end.seconds
+        });
+      });
+      return times;
     }
   },
   watch: {

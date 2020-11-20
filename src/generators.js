@@ -109,6 +109,33 @@ const createSession = async users => {
   }
 };
 
+const createConference = () => {
+  const blockLength = 15;
+  const numBlocks = 8;
+  const startTime = new Date().setMinutes(0, 0, 0);
+  const endTime =
+    new Date().setMinutes(0, 0, 0) + 1000 * 60 * (numBlocks * blockLength);
+  let times = [];
+  for (let i = 0; i < numBlocks; i++) {
+    times.push({
+      start: TimeStamp.fromMillis(startTime + 1000 * 60 * (i * blockLength)),
+      end: TimeStamp.fromMillis(startTime + 1000 * 60 * ((i + 1) * blockLength))
+    });
+  }
+  try {
+    db.collection("conferences")
+      .doc()
+      .set({
+        name: "VueJS online",
+        times,
+        startTime: TimeStamp.fromMillis(startTime),
+        endTime: TimeStamp.fromMillis(endTime)
+      });
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
 const clearSessions = async () => {
   try {
     const sessionCollection = await db.collection("sessions").get();
@@ -138,6 +165,9 @@ const clearUsers = () => {
 
 if (argv.clearSessions) {
   clearSessions();
+}
+if (argv.createConference) {
+  createConference();
 }
 if (argv.clearUsers) {
   try {

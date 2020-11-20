@@ -18,6 +18,7 @@ export default {
     Footer
   },
   created() {
+    this.$store.dispatch("bindConference", process.env.VUE_APP_CONFERENCE_ID);
     this.$store.dispatch("bindSessions");
     this.$store.dispatch("bindSessionCreators");
   },
