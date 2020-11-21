@@ -1,10 +1,10 @@
 import Vue from "vue";
-import vuetify from "@/plugins/vuetify";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import firebase from "firebase/app";
 import AsyncComputed from "vue-async-computed";
+import vuetify from "./plugins/vuetify";
 
 Vue.use(AsyncComputed);
 
