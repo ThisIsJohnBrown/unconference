@@ -43,25 +43,29 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    bindSessions: firestoreAction(async ({ bindFirestoreRef }) => {
-      const data = await bindFirestoreRef(
-        "sessions",
-        db.collection("sessions").orderBy("startTime")
-      );
-      return data;
+    bindSessions: firestoreAction(
+      async ({ bindFirestoreRef }, conferenceId) => {
+        const data = await bindFirestoreRef(
+          "sessions",
+          db
+            .collection(`conferences/${conferenceId}/sessions`)
+            .orderBy("startTime")
+        );
+        return data;
 
-      // THIS IS AN IDEA to map the users to the sessions, but might not be the right way to go about it.
+        // THIS IS AN IDEA to map the users to the sessions, but might not be the right way to go about it.
 
-      // const userCollection = db.collection("users");
-      // const users = data.map(d => d.created_by).filter(unique);
-      // const userReads = users
-      //   .map(d => {
-      //     return userCollection.doc(d).get();
-      //   })
-      //   .filter(unique);
-      // const result = await Promise.all(userReads);
-      // this.sessionCreators = result.map(v => v.data());
-    }),
+        // const userCollection = db.collection("users");
+        // const users = data.map(d => d.created_by).filter(unique);
+        // const userReads = users
+        //   .map(d => {
+        //     return userCollection.doc(d).get();
+        //   })
+        //   .filter(unique);
+        // const result = await Promise.all(userReads);
+        // this.sessionCreators = result.map(v => v.data());
+      }
+    ),
     bindSessionCreators: firestoreAction(async ({ bindFirestoreRef }) => {
       const data = await bindFirestoreRef(
         "sessionCreators",
@@ -70,16 +74,21 @@ export default new Vuex.Store({
       return data;
     }),
     bindConference: firestoreAction(async ({ bindFirestoreRef }, id) => {
-      const data = await bindFirestoreRef(
-        "conference",
-        db.collection("conferences").doc(id)
-      );
-      return data;
-    }),
-    bindSession: firestoreAction(async ({ bindFirestoreRef }, slug) => {
       try {
-        const session = await bindSession(bindFirestoreRef, slug);
-        await bindSessionCreator(bindFirestoreRef, session[0].created_by);
+        const data = await bindFirestoreRef(
+          "conference",
+          db.collection("conferences").doc(id)
+        );
+        return data;
+      } catch (error) {
+        console.error(error.message);
+      }
+    }),
+    bindSession: firestoreAction(async (context, slug) => {
+      try {
+        const session = await bindSession(context, slug);
+        console.log(session);
+        await bindSessionCreator(context, session[0].created_by);
       } catch (error) {
         console.error(error.message);
       }
@@ -92,7 +101,9 @@ export default new Vuex.Store({
         "userDetails",
         db.collection("users").doc(id)
       );
-      const sessionCollection = db.collection("sessions");
+      const sessionCollection = db.collection(
+        `conferences/${context.state.conference.id}/sessions`
+      );
       const watchedSessions = user.watched.filter(unique);
       const sessionReads = watchedSessions
         .map(d => {
@@ -108,7 +119,7 @@ export default new Vuex.Store({
         })
       });
       const owned = await db
-        .collection("sessions")
+        .collection(`conferences/${context.state.conference.id}/sessions`)
         .where("created_by", "==", id)
         .get();
       context.commit("updateOwned", {
@@ -126,7 +137,7 @@ export default new Vuex.Store({
         ? [...context.state.session[0].questions]
         : [];
       questions.push(question);
-      updateSession(context, {
+      updateSession(context, context.state.conference.id, {
         id: context.state.session[0].id,
         data: {
           questions: questions
@@ -142,7 +153,7 @@ export default new Vuex.Store({
         console.log(index);
       } else {
         handsRaised.push(raisedHand);
-        updateSession(context, {
+        updateSession(context, context.state.conference.id, {
           id: context.state.session[0].id,
           data: {
             handsRaised
@@ -163,7 +174,7 @@ export default new Vuex.Store({
         });
         if (index !== -1) {
           handsRaised.splice(index, 1);
-          updateSession(context, {
+          updateSession(context, context.state.conference.id, {
             id: context.state.session[0].id,
             data: {
               handsRaised

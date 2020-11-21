@@ -10,9 +10,19 @@ const faker = require("faker");
 const { hacker } = require("faker");
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
-const argv = yargs(hideBin(process.argv)).argv;
+const argv = yargs(hideBin(process.argv))
+  .option("createConference", {
+    alias: "c",
+    type: "boolean",
+    description: "Create a conference"
+  })
+  .option("sessions", {
+    alias: "s",
+    type: "number",
+    description: "Create sessions"
+  }).argv;
 
-const config = require("../firebase.config");
+const conference = argv.conference || "local";
 
 const db = admin.firestore();
 const TimeStamp = admin.firestore.Timestamp;
@@ -86,23 +96,25 @@ const createSession = async users => {
       tags.push(`${tag.slice(0, 1).toUpperCase()}${tag.slice(1)}`);
     }
 
-    let session = await db.collection("sessions").add({
-      title: title,
-      active: false,
-      slug,
-      startTime: admin.firestore.Timestamp.fromDate(startTime),
-      endTime: admin.firestore.Timestamp.fromDate(
-        new Date(startTime.setMinutes(startTime.getMinutes() + 30))
-      ),
-      type: sessionTypes[Math.floor(Math.random() * sessionTypes.length)],
-      details: faker.lorem.paragraph(),
-      created_by: user.id,
-      tags,
-      handsRaised: [],
-      questions: [],
-      visible: [],
-      kicked: []
-    });
+    let session = await db
+      .collection(`conferences/${conference}/sessions`)
+      .add({
+        title: title,
+        active: false,
+        slug,
+        startTime: admin.firestore.Timestamp.fromDate(startTime),
+        endTime: admin.firestore.Timestamp.fromDate(
+          new Date(startTime.setMinutes(startTime.getMinutes() + 30))
+        ),
+        type: sessionTypes[Math.floor(Math.random() * sessionTypes.length)],
+        details: faker.lorem.paragraph(),
+        created_by: user.id,
+        tags,
+        handsRaised: [],
+        questions: [],
+        visible: [],
+        kicked: []
+      });
     return;
   } catch (error) {
     return error.message;
@@ -122,14 +134,21 @@ const createConference = () => {
       end: TimeStamp.fromMillis(startTime + 1000 * 60 * ((i + 1) * blockLength))
     });
   }
+  const numTags = Math.floor(Math.random() * 4) + 1;
+  const tags = [];
+  for (let i = 0; i < numTags; i++) {
+    const tag = hacker.noun();
+    tags.push(`${tag.slice(0, 1).toUpperCase()}${tag.slice(1)}`);
+  }
   try {
     db.collection("conferences")
-      .doc()
+      .doc(conference)
       .set({
         name: "VueJS online",
         times,
         startTime: TimeStamp.fromMillis(startTime),
-        endTime: TimeStamp.fromMillis(endTime)
+        endTime: TimeStamp.fromMillis(endTime),
+        tags
       });
   } catch (error) {
     console.log(error.message);
@@ -138,9 +157,11 @@ const createConference = () => {
 
 const clearSessions = async () => {
   try {
-    const sessionCollection = await db.collection("sessions").get();
+    const sessionCollection = await db
+      .collection(`conferences/${conference}/sessions`)
+      .get();
     sessionCollection.forEach(doc => {
-      db.collection("sessions")
+      db.collection(`conferences/${conference}/sessions`)
         .doc(doc.id)
         .delete();
     });

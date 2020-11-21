@@ -4,7 +4,8 @@
       <v-toolbar-title
         ><router-link :to="{ name: 'Home' }"
           ><v-img :src="logo" width="40px"></v-img></router-link
-      ></v-toolbar-title>
+        >{{ conferenceName }}</v-toolbar-title
+      >
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-btn
@@ -136,6 +137,9 @@ export default {
   computed: {
     isAuthenticated() {
       return this.$store.state.user?.uid;
+    },
+    conferenceName() {
+      return this.$store.state.conference.name;
     }
   }
 };

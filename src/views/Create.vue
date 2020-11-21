@@ -118,7 +118,6 @@ import { required, minLength } from "vuelidate/lib/validators";
 export default {
   mixins: [validationMixin],
   data: () => ({
-    tags: ["Tips & Tricks", "Soft Skills", "Technical"],
     addedTags: [],
     startTime: {},
     endTime: {},
@@ -214,6 +213,9 @@ export default {
   computed: {
     isAuthenticated() {
       return this.$store.state.user?.uid;
+    },
+    tags() {
+      return this.$store.state.conference?.tags;
     },
     startTimes() {
       if (!this.$store.state.conference?.times) return [];

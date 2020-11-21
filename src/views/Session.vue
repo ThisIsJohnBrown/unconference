@@ -275,17 +275,6 @@ export default {
       });
     }
   },
-  async mounted() {
-    this.slug = this.$route.params.slug;
-    try {
-      await this.$store.dispatch("bindSession", this.slug);
-    } catch (error) {
-      console.error(error.message);
-    }
-    if (this.isActive) {
-      // setTimeout(this.initJitsi, 500);
-    }
-  },
   computed: {
     session() {
       return this.$store.state.session[0];
@@ -321,9 +310,20 @@ export default {
     },
     isOpen() {
       return this.session?.open;
+    },
+    conference() {
+      return this.$store.state.conference;
     }
   },
   watch: {
+    async conference() {
+      this.slug = this.$route.params.slug;
+      try {
+        await this.$store.dispatch("bindSession", this.slug);
+      } catch (error) {
+        console.error(error.message);
+      }
+    },
     isActive(newActive, oldActive) {
       if (oldActive === true && newActive === false) {
         this.tempToggle = true;

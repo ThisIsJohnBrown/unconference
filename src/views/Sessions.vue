@@ -59,7 +59,6 @@ export default {
           );
           return minutesUntilStart <= 0 && minutesUntilEnd >= 0;
         });
-        console.log(currentSessions);
         const times = [
           ...new Set(this.sessions.map(item => item.startTime.seconds))
         ];

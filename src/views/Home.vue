@@ -4,9 +4,7 @@
       <v-row class="ma-6" align="center" justify="center">
         <v-img :src="shapes[0]" class="ma-6"></v-img>
         <h1 class="text-h3 ma-6 text-md-h1">unconference</h1>
-        <h2 class="text-h5 ma-6  text-md-h4">
-          A new take on conferences during remote times
-        </h2>
+        <h2 class="text-h4 text-md-h3">{{ prettyDate }}</h2>
         <v-img :src="shapes[1]" class="ma-6"></v-img>
       </v-row>
     </v-container>
@@ -99,8 +97,31 @@ export default {
     isAuthenticated() {
       return this.$store.state.user?.uid;
     },
-    sessions() {
-      return this.$store.state.sessions;
+    prettyDate() {
+      if (!this.$store.state.conference) return "";
+      const day = Intl.DateTimeFormat(navigator.language, {
+        weekday: "long",
+        month: "short",
+        day: "numeric"
+      }).format(
+        new Date(this.$store.state.conference.startTime.seconds * 1000)
+      );
+
+      const startTime = Intl.DateTimeFormat("en", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true
+      }).format(
+        new Date(this.$store.state.conference.startTime.seconds * 1000)
+      );
+
+      const endTime = Intl.DateTimeFormat("en", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true
+      }).format(new Date(this.$store.state.conference.endTime.seconds * 1000));
+
+      return `${day} ${startTime}-${endTime}`;
     }
   },
   components: {}
