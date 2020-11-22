@@ -19,11 +19,7 @@
             sm="6"
             md="4"
           >
-            <SessionInfoCard
-              v-if="getUserDetails(session.created_by)"
-              v-bind:session="session"
-              v-bind:creator="getUserDetails(session.created_by)"
-            />
+            <SessionInfoCard v-bind:session="session" />
           </v-col>
         </v-row>
       </v-container>
@@ -38,11 +34,7 @@
             sm="6"
             md="4"
           >
-            <SessionInfoCard
-              v-if="getUserDetails(session.created_by)"
-              v-bind:session="session"
-              v-bind:creator="getUserDetails(session.created_by)"
-            />
+            <SessionInfoCard v-bind:session="session" />
           </v-col>
         </v-row>
       </v-container>
@@ -52,7 +44,6 @@
 
 <script>
 import SessionInfoCard from "@/components/SessionInfoCard";
-import { getUserDetails } from "@/helpers";
 export default {
   name: "SessionsList",
   computed: {},
@@ -60,9 +51,7 @@ export default {
     SessionInfoCard
   },
   props: ["sessions", "showTimes"],
-  methods: {
-    getUserDetails
-  }
+  methods: {}
 };
 </script>
 

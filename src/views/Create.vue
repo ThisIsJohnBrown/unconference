@@ -200,7 +200,12 @@ export default {
           slug: string_to_slug(this.title),
           type: this.type.val,
           details: this.details,
-          created_by: this.$store.state.user.uid,
+          created_by: {
+            id: this.$store.state.user.uid,
+            username: this.$store.state.userDetails.username,
+            displayName: this.$store.state.userDetails.displayName,
+            avatar: this.$store.state.userDetails.avatar
+          },
           tags: this.addedTags,
           handsRaised: [],
           questions: [],

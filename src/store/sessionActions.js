@@ -27,8 +27,7 @@ async function addSession(context, payload) {
       .collection(`conferences/${context.state.conference.id}/sessions`)
       .add({
         ...payload,
-        slug: `${string_to_slug(payload.title)}-${uid.slice(0, 6)}`,
-        created_by: uid
+        slug: `${string_to_slug(payload.title)}-${uid.slice(0, 6)}`
       });
   } catch (error) {
     console.warn(error.message);

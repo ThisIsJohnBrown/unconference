@@ -20,7 +20,17 @@
         </v-card-title>
       </router-link>
       <v-card-subtitle class="mb-3">
-        {{ session.details }}
+        <p>
+          Moderated by
+          <router-link
+            :to="{
+              name: 'UserProfile',
+              params: { username: session.created_by.username }
+            }"
+            >{{ session.created_by.displayName }}</router-link
+          >
+        </p>
+        <p>{{ session.details }}</p>
       </v-card-subtitle>
 
       <v-card-text>
@@ -101,7 +111,7 @@ export default {
       return this.minutesUntilStart <= 0 && this.minutesUntilEnd >= 0;
     },
     isOwner() {
-      return this.session?.created_by === this.$store.state.user.uid;
+      return this.session?.created_by.id === this.$store.state.user.uid;
     },
     isCompleted() {
       return this.minutesUntilEnd < 0;
@@ -119,7 +129,7 @@ export default {
   data: function() {
     return {};
   },
-  props: ["session", "creator"]
+  props: ["session"]
 };
 </script>
 

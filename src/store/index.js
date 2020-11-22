@@ -120,7 +120,7 @@ export default new Vuex.Store({
       });
       const owned = await db
         .collection(`conferences/${context.state.conference.id}/sessions`)
-        .where("created_by", "==", id)
+        .where("created_by.id", "==", id)
         .get();
       context.commit("updateOwned", {
         owned: owned.docs.map(v => {
@@ -225,7 +225,12 @@ export default new Vuex.Store({
         db.collection("users").where("username", "==", data.username)
       );
       return user;
-    })
+    }),
+    updateDetails: (context, payload) => {
+      db.collection("users")
+        .doc(context.state.userDetails.id)
+        .set(payload, { merge: true });
+    }
   },
   modules: {}
 });
