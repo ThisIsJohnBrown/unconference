@@ -4,10 +4,22 @@
       <v-row>
         <v-col offset="1" cols="2">
           <v-card tile elevation="0" v-if="details">
-            <v-img
-              :src="`https://robohash.org/${details.username}.png`"
-              v-if="details && details.username"
-            ></v-img>
+            <v-avatar size="164" tile v-if="details && details.username">
+              <v-img :src="avatar" />
+            </v-avatar>
+            <div v-if="editing">
+              <v-btn @click="clickUpload" tile outlined block
+                >Upload image</v-btn
+              >
+              <v-progress-linear v-model="uploadPercent"></v-progress-linear>
+              <input
+                type="file"
+                ref="avatar"
+                style="display: none"
+                @change="previewImage"
+                accept="image/*"
+              />
+            </div>
           </v-card>
         </v-col>
         <v-col offset="1" cols="8"
@@ -18,15 +30,18 @@
                 :readonly="!isEditing"
                 outlined
                 flat
+                tile
                 :label="isEditing ? 'Display Name' : ''"
                 placeholder="Display Name"
                 v-model="displayName"
               ></v-text-field>
               <div v-if="isUser">
-                <v-btn @click="toggleEditing">{{
+                <v-btn outlined tile flat @click="toggleEditing">{{
                   editing ? "Cancel" : "Edit"
                 }}</v-btn>
-                <v-btn @click="saveDetails" v-if="editing">Save</v-btn>
+                <v-btn outlined flat tile @click="saveDetails" v-if="editing"
+                  >Save</v-btn
+                >
               </div>
             </v-form>
           </v-card>
@@ -50,7 +65,7 @@
 
 <script>
 import SessionsList from "@/components/SessionsList";
-import { db } from "@/firebase";
+import { db, storage } from "@/firebase";
 import { getUserDetails } from "@/helpers";
 
 export default {
@@ -58,7 +73,11 @@ export default {
   data() {
     return {
       editing: false,
-      displayName: " "
+      displayName: " ",
+      avatar: "",
+      imageData: "",
+      uploadPercent: 0,
+      storageRef: null
     };
   },
   asyncComputed: {
@@ -82,14 +101,11 @@ export default {
     isEditing() {
       return this.editing;
     },
-    sessions() {
-      return [...this.$store.state.sessions].splice(0, 3);
-    },
     username() {
       return this.$route.params.username;
     },
     details() {
-      return this.$route.params.username
+      return this.username
         ? this.profileDetails
         : this.$store.state.userDetails;
     },
@@ -97,7 +113,7 @@ export default {
       return this.$store.state.ownedSessions;
     },
     watched() {
-      if (this.$route.params.username) {
+      if (this.username) {
         return this.profileDetails ? this.profileWatched : {};
       } else {
         return this.$store.state.watchedSessions;
@@ -106,8 +122,8 @@ export default {
     isUser() {
       if (!this.details) return;
       return (
-        this.$store.state.userDetails.username == this.$route.params.username ||
-        !this.$route.params.username
+        this.$store.state.userDetails.username == this.username ||
+        !this.username
       );
     }
   },
@@ -118,21 +134,61 @@ export default {
     getUserDetails,
     toggleEditing() {
       this.editing = !this.editing;
+      this.displayName = this.details?.displayName;
+      this.avatar = this.details?.avatar;
     },
-    saveDetails() {
+    async saveDetails() {
       this.editing = false;
+      if (this.storageRef) {
+        await storage
+          .ref(`avatar-${this.details.username}`)
+          .put(this.imageData);
+      }
       this.$store.dispatch("updateDetails", {
-        displayName: this.displayName
+        displayName: this.displayName,
+        avatar: `https://firebasestorage.googleapis.com/v0/b/vue-auth-test-d1926.appspot.com/o/avatar-${this.details.username}_400x400?alt=media`
       });
+    },
+
+    clickUpload() {
+      this.$refs.avatar.click();
+    },
+
+    previewImage(event) {
+      this.uploadPercent = 0;
+      this.imageData = event.target.files[0];
+      this.onUpload();
+    },
+
+    onUpload() {
+      this.storageRef = storage.ref(`tmp-${Math.random()}`).put(this.imageData);
+      this.storageRef.on(
+        `state_changed`,
+        snapshot => {
+          this.uploadPercent =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        },
+        error => {
+          console.log(error.message);
+        },
+        () => {
+          this.uploadPercent = 100;
+          this.storageRef.snapshot.ref.getDownloadURL().then(url => {
+            this.avatar = url;
+          });
+        }
+      );
     }
   },
   created() {
     this.displayName = this.details?.displayName;
+    this.avatar = this.details?.avatar;
   },
   watch: {
     details(newDetails) {
       if (newDetails) {
         this.displayName = newDetails.displayName;
+        this.avatar = newDetails.avatar;
       }
     }
   }

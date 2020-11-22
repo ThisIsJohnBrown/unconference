@@ -6,11 +6,13 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "generate": "node src/generators.js;"
+    "generate": "node src/generators.js;",
+    "emulators": "firebase emulators:start --import=./emulator-data --export-on-exit"
   },
   "dependencies": {
     "bulma": "0.9.1",
     "core-js": "^3.6.5",
+    "dotenv": "^8.2.0",
     "firebase": "^8.0.1",
     "vue": "^2.6.11",
     "vue-async-computed": "3.9.0",

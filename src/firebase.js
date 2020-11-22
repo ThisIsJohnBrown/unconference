@@ -1,25 +1,29 @@
 import firebase from "firebase/app";
 import "firebase/auth";
+import "firebase/storage";
 import "firebase/firestore";
-import "firebase/analytics";
 
 const fb = firebase.initializeApp({
   apiKey: process.env.VUE_APP_FIRESTORE_API_KEY,
   authDomain: process.env.VUE_APP_FIRESTORE_AUTH_DOMAIN,
-  databaseURL: process.env.VUE_APP_FIRESTORE_DATABASEURL,
   projectId: process.env.VUE_APP_FIRESTORE_PROJECT_ID,
-  storageBucket: process.env.VUE_APP_FIRESTORE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VUE_APP_FIRESTORE_MESSAGING_SENDER_ID,
   appId: process.env.VUE_APP_FIRESTORE_APP_ID,
-  measurementId: process.env.VUE_APP_FIRESTORE_MEASUREMENT_ID
+  storageBucket: process.env.VUE_APP_FIRESTORE_STORAGE_BUCKET
 });
-fb.analytics();
 
 const db = fb.firestore();
+const storage = fb.storage();
 const TimeStamp = firebase.firestore.Timestamp;
 const auth = firebase.auth();
 
-db.settings({ timestampsInSnapshots: true });
+let dbSettings = {
+  timestampsInSnapshots: true
+};
+if (process.env.VUE_APP_FIREBASE_EMULATOR === "true") {
+  dbSettings.host = "localhost:8088";
+  dbSettings.ssl = false;
+}
+db.settings(dbSettings);
 
 const register = async data => {
   try {
@@ -108,5 +112,6 @@ export {
   googleLogin,
   emailPasswordLogin,
   logout,
-  register
+  register,
+  storage
 };
