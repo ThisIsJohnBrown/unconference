@@ -9,9 +9,7 @@
           <v-card-title>
             {{ session.title }}
           </v-card-title>
-          <v-card-subtitle>
-            Moderated by John Brown
-          </v-card-subtitle>
+          <v-card-subtitle> Moderated by {{ moderator }} </v-card-subtitle>
           <v-card-subtitle>
             {{ session.details }}
           </v-card-subtitle>
@@ -278,6 +276,9 @@ export default {
   computed: {
     session() {
       return this.$store.state.session[0];
+    },
+    moderator() {
+      return this.$store.state.userDetails.displayName;
     },
     startTime() {
       return new Date(this.session.startTime.seconds * 1000);

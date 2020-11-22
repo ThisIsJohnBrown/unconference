@@ -3,15 +3,32 @@
     <v-container grid-list-md>
       <v-row>
         <v-col offset="1" cols="2">
-          <v-card tile elevation="0">
+          <v-card tile elevation="0" v-if="details">
             <v-img
               :src="`https://robohash.org/${details.username}.png`"
+              v-if="details && details.username"
             ></v-img>
           </v-card>
         </v-col>
         <v-col offset="1" cols="8"
           ><v-card tile elevation="0">
-            <h2 class="text-h2">{{ details.displayName }}</h2>
+            <v-form>
+              <v-text-field
+                class="text-h3 back editable"
+                :readonly="!isEditing"
+                outlined
+                flat
+                :label="isEditing ? 'Display Name' : ''"
+                placeholder="Display Name"
+                v-model="displayName"
+              ></v-text-field>
+              <div v-if="isUser">
+                <v-btn @click="toggleEditing">{{
+                  editing ? "Cancel" : "Edit"
+                }}</v-btn>
+                <v-btn @click="saveDetails" v-if="editing">Save</v-btn>
+              </div>
+            </v-form>
           </v-card>
         </v-col>
       </v-row>
@@ -38,12 +55,18 @@ import { getUserDetails } from "@/helpers";
 
 export default {
   name: "Profile",
+  data() {
+    return {
+      editing: false,
+      displayName: " "
+    };
+  },
   asyncComputed: {
     async profileDetails() {
       if (this.username) {
         const userSnap = await db
           .collection("users")
-          .where("username", "==", this.$route.params.username)
+          .where("username", "==", this.$route.params?.username)
           .get();
         return userSnap.docs[0].data();
       }
@@ -55,6 +78,9 @@ export default {
       return this.$store.state.sessions.filter(a => {
         return this.profileDetails.watched.indexOf(a.id) !== -1;
       });
+    },
+    isEditing() {
+      return this.editing;
     },
     sessions() {
       return [...this.$store.state.sessions].splice(0, 3);
@@ -76,15 +102,54 @@ export default {
       } else {
         return this.$store.state.watchedSessions;
       }
+    },
+    isUser() {
+      if (!this.details) return;
+      return (
+        this.$store.state.userDetails.username == this.$route.params.username ||
+        !this.$route.params.username
+      );
     }
   },
   components: {
     SessionsList
   },
   methods: {
-    getUserDetails
+    getUserDetails,
+    toggleEditing() {
+      this.editing = !this.editing;
+    },
+    saveDetails() {
+      this.editing = false;
+      this.$store.dispatch("updateDetails", {
+        displayName: this.displayName
+      });
+    }
+  },
+  created() {
+    this.displayName = this.details?.displayName;
+  },
+  watch: {
+    details(newDetails) {
+      if (newDetails) {
+        this.displayName = newDetails.displayName;
+      }
+    }
   }
 };
 </script>
 
-<style></style>
+<style lang="scss">
+$text-field-outlined-label-position-x: 50px;
+
+.v-input.editable {
+  input {
+    padding: 40px 0px;
+  }
+  &.v-input--is-readonly {
+    fieldset {
+      border: none;
+    }
+  }
+}
+</style>
