@@ -20,7 +20,6 @@ export default {
   created() {
     this.$store.dispatch("bindConference", process.env.VUE_APP_CONFERENCE_ID);
     this.$store.dispatch("bindSessions", process.env.VUE_APP_CONFERENCE_ID);
-    this.$store.dispatch("bindSessionCreators");
   },
   mounted() {
     auth.onAuthStateChanged(user => {

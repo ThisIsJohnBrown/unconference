@@ -210,8 +210,7 @@ export default {
         data: {
           open: !this.session.open,
           visible: [],
-          speaker: "",
-          test: "asdf"
+          speaker: ""
         }
       });
     },

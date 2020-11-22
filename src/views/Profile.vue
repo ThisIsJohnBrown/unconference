@@ -29,17 +29,16 @@
                 class="text-h3 back editable"
                 :readonly="!isEditing"
                 outlined
-                flat
                 tile
                 :label="isEditing ? 'Display Name' : ''"
                 placeholder="Display Name"
                 v-model="displayName"
               ></v-text-field>
               <div v-if="isUser">
-                <v-btn outlined tile flat @click="toggleEditing">{{
+                <v-btn outlined tile @click="toggleEditing">{{
                   editing ? "Cancel" : "Edit"
                 }}</v-btn>
-                <v-btn outlined flat tile @click="saveDetails" v-if="editing"
+                <v-btn outlined tile @click="saveDetails" v-if="editing"
                   >Save</v-btn
                 >
               </div>
@@ -146,7 +145,7 @@ export default {
       }
       this.$store.dispatch("updateDetails", {
         displayName: this.displayName,
-        avatar: `https://firebasestorage.googleapis.com/v0/b/vue-auth-test-d1926.appspot.com/o/avatar-${this.details.username}_400x400?alt=media`
+        avatar: `https://firebasestorage.googleapis.com/v0/b/vue-auth-test-d1926.appspot.com/o/thumbs%2Favatar-${this.details.username}_400x400?alt=media`
       });
     },
 
@@ -161,7 +160,9 @@ export default {
     },
 
     onUpload() {
-      this.storageRef = storage.ref(`tmp-${Math.random()}`).put(this.imageData);
+      this.storageRef = storage
+        .ref(`tmp/tmp-${Math.random()}`)
+        .put(this.imageData);
       this.storageRef.on(
         `state_changed`,
         snapshot => {

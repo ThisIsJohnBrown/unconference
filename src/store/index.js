@@ -6,7 +6,6 @@ import { unique } from "@/helpers";
 import {
   addSession,
   bindSession,
-  bindSessionCreator,
   deleteSession,
   updateSession
 } from "./sessionActions";
@@ -86,9 +85,7 @@ export default new Vuex.Store({
     }),
     bindSession: firestoreAction(async (context, slug) => {
       try {
-        const session = await bindSession(context, slug);
-        console.log(session);
-        await bindSessionCreator(context, session[0].created_by);
+        await bindSession(context, slug);
       } catch (error) {
         console.error(error.message);
       }
