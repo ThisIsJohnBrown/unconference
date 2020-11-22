@@ -30,6 +30,7 @@
             >{{ session.created_by.displayName }}</router-link
           >
         </p>
+        <p>{{ prettyDate }}</p>
         <p>{{ session.details }}</p>
       </v-card-subtitle>
 
@@ -124,6 +125,20 @@ export default {
     },
     isAuthenticated() {
       return this.$store.state.user?.uid;
+    },
+    prettyDate() {
+      const startTime = Intl.DateTimeFormat("en", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true
+      }).format(new Date(this.session.startTime.seconds * 1000));
+
+      const endTime = Intl.DateTimeFormat("en", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true
+      }).format(new Date(this.session.endTime.seconds * 1000));
+      return `${startTime}-${endTime}`;
     }
   },
   data: function() {

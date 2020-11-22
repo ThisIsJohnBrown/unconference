@@ -9,7 +9,21 @@
           <v-card-title>
             {{ session.title }}
           </v-card-title>
-          <v-card-subtitle> Moderated by {{ moderator }} </v-card-subtitle>
+          <v-card-subtitle>
+            <p>
+              Moderated by
+              <router-link
+                :to="{
+                  name: 'UserProfile',
+                  params: { username: session.created_by.displayName }
+                }"
+                ><v-avatar size="24" tile>
+                  <v-img :src="session.created_by.avatar" />
+                </v-avatar>
+                {{ session.created_by.displayName }}</router-link
+              >
+            </p>
+          </v-card-subtitle>
           <v-card-subtitle>
             {{ session.details }}
           </v-card-subtitle>
@@ -277,9 +291,6 @@ export default {
     session() {
       return this.$store.state.session[0];
     },
-    moderator() {
-      return this.$store.state.userDetails.displayName;
-    },
     startTime() {
       return new Date(this.session.startTime.seconds * 1000);
     },
@@ -293,7 +304,7 @@ export default {
       return this.$store.state.user.uid;
     },
     isOwner() {
-      return this.session?.created_by === this.$store.state.user.uid;
+      return this.session?.created_by.id === this.$store.state.user.uid;
     },
     isActive() {
       return this.session?.active;
