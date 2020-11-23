@@ -173,7 +173,9 @@ const createConference = async () => {
         times,
         startTime: TimeStamp.fromMillis(startTime),
         endTime: TimeStamp.fromMillis(endTime),
-        tags
+        tags,
+        blockLength,
+        numBlocks
       });
     db.collection("users")
       .get()
