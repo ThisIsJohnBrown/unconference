@@ -1,7 +1,6 @@
 var admin = require("firebase-admin");
 var serviceAccount = require("./service-account.json");
 require("dotenv").config({ path: "./.env.local" });
-console.log(process.env);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -64,17 +63,24 @@ let sessionTypes = ["panel", "discussion", "workshop", "presentation"];
 const createUser = async () => {
   try {
     const username = faker.internet.userName();
+    const social = {
+      twitter: faker.random.boolean() ? username : "",
+      github: faker.random.boolean() ? username : "",
+      instagram: faker.random.boolean() ? username : "",
+      linkedin: faker.random.boolean() ? username : "",
+      homepage: faker.random.boolean() ? faker.internet.url() : ""
+    };
     const data = {
       displayName: username,
       email: faker.internet.email(),
       verified: faker.random.boolean(),
-      username: `${username}-123`,
-      avatar: faker.internet.avatar(),
+      username: username,
+      avatar: `https://robohash.org/${username}.jpg`,
       watched: [],
-      joined: []
+      joined: [],
+      social: social
     };
     const userData = await admin.auth().createUser({ email: data.email });
-    console.log(userData);
     db.collection("users")
       .doc(userData.uid)
       .set(data);
@@ -143,7 +149,7 @@ const createSession = async users => {
   }
 };
 
-const createConference = () => {
+const createConference = async () => {
   const blockLength = 15;
   const numBlocks = 8;
   const startTime = new Date().setMinutes(0, 0, 0);
@@ -163,7 +169,8 @@ const createConference = () => {
     tags.push(`${tag.slice(0, 1).toUpperCase()}${tag.slice(1)}`);
   }
   try {
-    db.collection("conferences")
+    await db
+      .collection("conferences")
       .doc(conference)
       .set({
         name: `${tags[0]} Online`,
@@ -171,6 +178,13 @@ const createConference = () => {
         startTime: TimeStamp.fromMillis(startTime),
         endTime: TimeStamp.fromMillis(endTime),
         tags
+      });
+    db.collection("users")
+      .get()
+      .then(users => {
+        for (let i = 0; i < 8; i++) {
+          createSession(users);
+        }
       });
   } catch (error) {
     console.log(error.message);
@@ -182,20 +196,22 @@ const clearSessions = async () => {
     const sessionCollection = await db
       .collection(`conferences/${conference}/sessions`)
       .get();
-    sessionCollection.forEach(doc => {
-      db.collection(`conferences/${conference}/sessions`)
+    sessionCollection.forEach(async doc => {
+      await db
+        .collection(`conferences/${conference}/sessions`)
         .doc(doc.id)
         .delete();
     });
+    return;
   } catch (error) {
     console.log(error.message);
   }
 };
 
-const clearUsers = () => {
+const clearUsers = async () => {
   try {
-    const sessionCollection = db.collection("users").get();
-    sessionCollection.forEach(doc => {
+    const userCollection = await db.collection("users").get();
+    userCollection.forEach(doc => {
       db.collection("users")
         .doc(doc.id)
         .delete();
@@ -210,6 +226,7 @@ if (argv.clearSessions) {
   clearSessions();
 }
 if (argv.createConference) {
+  clearSessions();
   createConference();
 }
 if (argv.clearUsers) {

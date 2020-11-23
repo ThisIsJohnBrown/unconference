@@ -50,9 +50,16 @@ const register = async data => {
       email: data.email,
       username: data.username,
       verified: false,
-      avatar: `https://www.tinygraphs.com/squares/${displayName}?theme=base&numcolors=2&size=220.png`,
+      avatar: `https://robohash.org/${data.username}.jpg`,
       watched: [],
-      joined: []
+      joined: [],
+      social: {
+        github: "",
+        homepage: "",
+        linkedin: "",
+        twitter: "",
+        instagram: ""
+      }
     };
     try {
       await db
@@ -77,12 +84,13 @@ const register = async data => {
 const googleLogin = async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   const data = await firebase.auth().signInWithPopup(provider);
+  const username = data.user.email.slice(0, data.user.email.indexOf("@"));
   const userData = {
     displayName: data.user.displayName,
     email: data.user.email,
-    username: data.user.email.slice(0, data.user.email.indexOf("@")),
+    username,
     verified: false,
-    avatar: `https://www.tinygraphs.com/squares/${data.user.displayName}?theme=base&numcolors=2&size=220.png`,
+    avatar: `https://robohash.org/${username}.jpg`,
     watched: [],
     joined: []
   };

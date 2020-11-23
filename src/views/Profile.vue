@@ -34,6 +34,115 @@
                 placeholder="Display Name"
                 v-model="displayName"
               ></v-text-field>
+              <v-container v-if="isEditing">
+                <v-row>
+                  <v-icon class="mr-2 mb-8">fa fa-home</v-icon>
+                  <v-text-field
+                    class="editable"
+                    placeholder=""
+                    :readonly="!isEditing"
+                    outlined
+                    tile
+                    x-large
+                    v-model="social.homepage"
+                    type="url"
+                    :label="isEditing ? 'Homepage URL' : ''"
+                  ></v-text-field>
+                </v-row>
+                <v-row>
+                  <v-icon class="mr-2 mb-8">fab fa-twitter</v-icon>
+                  <v-text-field
+                    class="editable"
+                    placeholder=""
+                    :readonly="!isEditing"
+                    outlined
+                    tile
+                    x-large
+                    v-model="social.twitter"
+                    :label="isEditing ? 'Twitter username' : ''"
+                  ></v-text-field>
+                </v-row>
+                <v-row>
+                  <v-icon class="mr-2 mb-8">fab fa-instagram</v-icon>
+                  <v-text-field
+                    class="editable"
+                    placeholder=""
+                    :readonly="!isEditing"
+                    outlined
+                    tile
+                    x-large
+                    v-model="social.instagram"
+                    :label="isEditing ? 'Instagram username' : ''"
+                  ></v-text-field>
+                </v-row>
+                <v-row>
+                  <v-icon class="mr-2 mb-8">fab fa-linkedin</v-icon>
+                  <v-text-field
+                    class="editable"
+                    placeholder=""
+                    :readonly="!isEditing"
+                    outlined
+                    tile
+                    x-large
+                    v-model="social.linkedin"
+                    :label="isEditing ? 'Linkedin username' : ''"
+                  ></v-text-field>
+                </v-row>
+                <v-row>
+                  <v-icon class="mr-2 mb-8">fab fa-github</v-icon>
+                  <v-text-field
+                    class="editable"
+                    placeholder=""
+                    :readonly="!isEditing"
+                    outlined
+                    tile
+                    x-large
+                    v-model="social.github"
+                    :label="isEditing ? 'Github username' : ''"
+                  ></v-text-field>
+                </v-row>
+              </v-container>
+              <v-container v-else>
+                <v-row align="center" justify="space-around">
+                  <v-btn
+                    icon
+                    color="black"
+                    v-if="socialLinks.homepage"
+                    :href="socialLinks.homepage"
+                    ><v-icon>fa fa-home</v-icon></v-btn
+                  >
+                  <v-btn
+                    icon
+                    color="black"
+                    v-if="socialLinks.twitter"
+                    :href="`https://twitter.com/${socialLinks.twitter}`"
+                    ><v-icon>fab fa-twitter</v-icon></v-btn
+                  >
+                  <v-btn
+                    icon
+                    color="black"
+                    v-if="socialLinks.instagram"
+                    :href="`https://instagram.com/${socialLinks.instagram}`"
+                    ><v-icon>fab fa-instagram</v-icon></v-btn
+                  >
+                  <v-btn
+                    icon
+                    color="black"
+                    v-if="socialLinks.linkedin"
+                    :href="
+                      `https://www.linkedin.com/in/${socialLinks.linkedin}/`
+                    "
+                    ><v-icon>fab fa-linkedin</v-icon></v-btn
+                  >
+                  <v-btn
+                    icon
+                    color="black"
+                    v-if="socialLinks.github"
+                    :href="`https://github.com/${socialLinks.github}`"
+                    ><v-icon>fab fa-github</v-icon></v-btn
+                  >
+                </v-row>
+              </v-container>
               <div v-if="isUser">
                 <v-btn outlined tile @click="toggleEditing">{{
                   editing ? "Cancel" : "Edit"
@@ -76,7 +185,13 @@ export default {
       avatar: "",
       imageData: "",
       uploadPercent: 0,
-      storageRef: null
+      storageRef: null,
+      social: {
+        twitter: "",
+        instagram: "",
+        linkedin: "",
+        github: ""
+      }
     };
   },
   asyncComputed: {
@@ -111,6 +226,9 @@ export default {
     owned() {
       return this.$store.state.ownedSessions;
     },
+    socialLinks() {
+      return this.details && this.details.social ? this.details.social : {};
+    },
     watched() {
       if (this.username) {
         return this.profileDetails ? this.profileWatched : {};
@@ -133,8 +251,18 @@ export default {
     getUserDetails,
     toggleEditing() {
       this.editing = !this.editing;
+      this.syncEditingDetails();
+    },
+    syncEditingDetails() {
       this.displayName = this.details?.displayName;
       this.avatar = this.details?.avatar;
+      if (this.details?.social) {
+        this.social.homepage = this.details?.social.homepage || "";
+        this.social.twitter = this.details?.social.twitter || "";
+        this.social.instagram = this.details?.social.instagram || "";
+        this.social.github = this.details?.social.github || "";
+        this.social.linkedin = this.details?.social.linkedin || "";
+      }
     },
     async saveDetails() {
       this.editing = false;
@@ -143,9 +271,15 @@ export default {
           .ref(`avatar-${this.details.username}`)
           .put(this.imageData);
       }
+      console.log({
+        displayName: this.displayName,
+        avatar: `https://firebasestorage.googleapis.com/v0/b/vue-auth-test-d1926.appspot.com/o/thumbs%2Favatar-${this.details.username}_400x400?alt=media`,
+        social: { ...this.social }
+      });
       this.$store.dispatch("updateDetails", {
         displayName: this.displayName,
-        avatar: `https://firebasestorage.googleapis.com/v0/b/vue-auth-test-d1926.appspot.com/o/thumbs%2Favatar-${this.details.username}_400x400?alt=media`
+        avatar: `https://firebasestorage.googleapis.com/v0/b/vue-auth-test-d1926.appspot.com/o/thumbs%2Favatar-${this.details.username}_400x400?alt=media`,
+        social: this.social
       });
     },
 
@@ -182,14 +316,12 @@ export default {
     }
   },
   created() {
-    this.displayName = this.details?.displayName;
-    this.avatar = this.details?.avatar;
+    this.syncEditingDetails();
   },
   watch: {
     details(newDetails) {
       if (newDetails) {
-        this.displayName = newDetails.displayName;
-        this.avatar = newDetails.avatar;
+        this.syncEditingDetails();
       }
     }
   }
@@ -200,7 +332,7 @@ export default {
 $text-field-outlined-label-position-x: 50px;
 
 .v-input.editable {
-  input {
+  &.text-h3 input {
     padding: 40px 0px;
   }
   &.v-input--is-readonly {
