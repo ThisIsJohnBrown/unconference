@@ -10,7 +10,6 @@
     "emulators": "firebase emulators:start --import=./emulator-data --export-on-exit"
   },
   "dependencies": {
-    "bulma": "0.9.1",
     "core-js": "^3.6.5",
     "dotenv": "^8.2.0",
     "firebase": "^8.0.1",
