@@ -153,13 +153,6 @@ const createConference = async () => {
   const startTime = new Date().setMinutes(0, 0, 0);
   const endTime =
     new Date().setMinutes(0, 0, 0) + 1000 * 60 * (numBlocks * blockLength);
-  let times = [];
-  for (let i = 0; i < numBlocks; i++) {
-    times.push({
-      start: TimeStamp.fromMillis(startTime + 1000 * 60 * (i * blockLength)),
-      end: TimeStamp.fromMillis(startTime + 1000 * 60 * ((i + 1) * blockLength))
-    });
-  }
   const numTags = Math.floor(Math.random() * 4) + 1;
   const tags = [];
   for (let i = 0; i < numTags; i++) {
@@ -172,7 +165,6 @@ const createConference = async () => {
       .doc(conference)
       .set({
         name: `${tags[0]} Online`,
-        times,
         startTime: TimeStamp.fromMillis(startTime),
         endTime: TimeStamp.fromMillis(endTime),
         tags,

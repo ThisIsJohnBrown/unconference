@@ -222,26 +222,41 @@ export default {
     tags() {
       return this.$store.state.conference?.tags;
     },
+    conference() {
+      return this.$store.state.conference || {};
+    },
+    timeBlocks() {
+      if (!this.conference.numBlocks) return [];
+      let times = [];
+      const startTime = this.conference.startTime.seconds * 1000;
+      for (let i = 0; i < this.conference.numBlocks; i++) {
+        times.push({
+          start: new Date(
+            startTime + 1000 * 60 * (i * this.conference.blockLength)
+          ),
+          end: new Date(
+            startTime + 1000 * 60 * ((i + 1) * this.conference.blockLength)
+          )
+        });
+      }
+      return times;
+    },
     startTimes() {
-      if (!this.$store.state.conference?.times) return [];
-      return this.$store.state.conference?.times.map(t => {
-        let [hour, minute] = new Date(t.start.seconds * 1000)
-          .toLocaleTimeString("en-US")
-          .split(/:| /);
+      if (!this.timeBlocks.length) return [];
+      return this.timeBlocks.map(t => {
+        let [hour, minute] = t.start.toLocaleTimeString("en-US").split(/:| /);
         return {
           time: `${hour}:${minute}`,
-          val: t.start.seconds
+          val: t.start.getTime()
         };
       });
     },
     endTimes() {
-      if (!this.$store.state.conference?.times) return [];
+      if (!this.timeBlocks.length) return [];
       let times = [];
-      this.$store.state.conference?.times.forEach(t => {
-        if (t.end.seconds < this.startTime.val + 100) return false;
-        let [hour, minute] = new Date(t.end.seconds * 1000)
-          .toLocaleTimeString("en-US")
-          .split(/:| /);
+      this.timeBlocks.forEach(t => {
+        if (t.end.getTime() < this.startTime.val + 100) return false;
+        let [hour, minute] = t.end.toLocaleTimeString("en-US").split(/:| /);
         times.push({
           time: `${hour}:${minute}`,
           val: t.end.seconds
