@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "generate": "node src/generators.js;",
+    "generate": "node src/generators.js",
+    "mocha": "mocha",
     "emulators": "firebase emulators:start --import=./emulator-data --export-on-exit"
   },
   "dependencies": {
@@ -22,6 +23,7 @@
     "vuexfire": "^3.2.4"
   },
   "devDependencies": {
+    "@firebase/testing": "^0.20.11",
     "@fortawesome/fontawesome-free": "^5.15.1",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
@@ -36,6 +38,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "faker": "5.1.0",
     "firebase-admin": "9.4.0",
+    "mocha": "^8.2.1",
     "prettier": "^1.19.1",
     "sass": "^1.29.0",
     "sass-loader": "^8.0.2",

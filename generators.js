@@ -30,7 +30,7 @@ let dbSettings = {
   timestampsInSnapshots: true
 };
 if (argv.emulate) {
-  dbSettings.host = "localhost:8088";
+  dbSettings.host = "localhost:8080";
   dbSettings.ssl = false;
 }
 db.settings(dbSettings);
@@ -118,7 +118,7 @@ const createSession = async users => {
 
     const slug = string_to_slug(title);
 
-    await db.collection(`conferences/${conference}/sessions`).add({
+    const sessionData = {
       title: title,
       active: false,
       slug,
@@ -137,7 +137,9 @@ const createSession = async users => {
       questions: [],
       visible: [],
       kicked: []
-    });
+    };
+    console.log(sessionData);
+    await db.collection(`conferences/${conference}/sessions`).add(sessionData);
     return;
   } catch (error) {
     console.log(error.message);

@@ -20,7 +20,7 @@ let dbSettings = {
   timestampsInSnapshots: true
 };
 if (process.env.VUE_APP_FIREBASE_EMULATOR === "true") {
-  dbSettings.host = "localhost:8088";
+  dbSettings.host = "localhost:8080";
   dbSettings.ssl = false;
 }
 db.settings(dbSettings);
