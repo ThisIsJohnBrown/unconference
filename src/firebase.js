@@ -44,9 +44,8 @@ const register = async data => {
     const newUser = await firebase
       .auth()
       .createUserWithEmailAndPassword(data.email, data.password);
-    const displayName = data.email.slice(0, data.email.indexOf("@"));
     const userData = {
-      displayName,
+      displayName: data.displayName,
       email: data.email,
       username: data.username,
       verified: false,
@@ -59,7 +58,8 @@ const register = async data => {
         linkedin: "",
         twitter: "",
         instagram: ""
-      }
+      },
+      uid: newUser.user.uid
     };
     try {
       await db

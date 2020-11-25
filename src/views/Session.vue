@@ -349,7 +349,7 @@ export default {
       }
     },
     speaker(to) {
-      if (this.isActive) {
+      if (this.isActive && this.api) {
         const enabled = to ? false : true;
         // if (to) {
         this.api.executeCommand(

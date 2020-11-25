@@ -79,8 +79,9 @@ const createUser = async () => {
       social: social
     };
     const userData = await admin.auth().createUser({ email: data.email });
+    data.uid = userData.uid;
     db.collection("users")
-      .doc(userData.uid)
+      .doc(username)
       .set(data);
     return;
   } catch (error) {
@@ -101,7 +102,19 @@ const createSession = async users => {
       .doc(conference)
       .get();
 
-    const times = localConference.data().times;
+    const localConferenceData = localConference.data();
+    let times = [];
+    const startTime = localConferenceData.startTime.seconds * 1000;
+    for (let i = 0; i < localConferenceData.numBlocks; i++) {
+      times.push({
+        start: new Date(
+          startTime + 1000 * 60 * (i * localConferenceData.blockLength)
+        ),
+        end: new Date(
+          startTime + 1000 * 60 * ((i + 1) * localConferenceData.blockLength)
+        )
+      });
+    }
     const startTimeNum = Math.floor(Math.random() * (times.length - 3));
     const endTimeNum = startTimeNum + Math.floor(Math.random() * 3);
 
@@ -133,12 +146,9 @@ const createSession = async users => {
         avatar: userData.avatar
       },
       tags,
-      handsRaised: [],
-      questions: [],
       visible: [],
       kicked: []
     };
-    console.log(sessionData);
     await db.collection(`conferences/${conference}/sessions`).add(sessionData);
     return;
   } catch (error) {

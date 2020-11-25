@@ -13,6 +13,11 @@ import { auth } from "@/firebase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 export default {
+  data() {
+    return {
+      user: null
+    };
+  },
   components: {
     Navbar,
     Footer
@@ -21,14 +26,28 @@ export default {
     this.$store.dispatch("bindConference", process.env.VUE_APP_CONFERENCE_ID);
     this.$store.dispatch("bindSessions", process.env.VUE_APP_CONFERENCE_ID);
   },
+  computed: {
+    conference() {
+      return this.$store.state.conference || null;
+    }
+  },
+  watch: {
+    conference() {
+      if (!this.$store.state.userDetails.username && this.user) {
+        this.$store.dispatch("bindUser", this.user.uid);
+      }
+    }
+  },
   mounted() {
     auth.onAuthStateChanged(user => {
       if (user) {
-        this.$store.commit({
-          type: "loginUser",
-          user
-        });
-        this.$store.dispatch("bindUser", user.uid);
+        this.user = user;
+        if (this.conference) {
+          this.$store.commit({
+            type: "loginUser",
+            user
+          });
+        }
       } else {
         this.$store.commit({
           type: "logoutUser"

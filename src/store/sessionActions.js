@@ -2,7 +2,6 @@ import { auth, db } from "../firebase";
 import { string_to_slug } from "@/helpers";
 
 async function bindSession(context, slug) {
-  console.log(context.state.conference.id, slug);
   return await context.bindFirestoreRef(
     "session",
     db
