@@ -14,6 +14,7 @@ const fb = firebase.initializeApp({
 const db = fb.firestore();
 const storage = fb.storage();
 const TimeStamp = firebase.firestore.Timestamp;
+const FieldPath = firebase.firestore.FieldPath;
 const auth = firebase.auth();
 
 let dbSettings = {
@@ -117,6 +118,7 @@ export {
   auth,
   db,
   TimeStamp,
+  FieldPath,
   googleLogin,
   emailPasswordLogin,
   logout,

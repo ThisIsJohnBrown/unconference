@@ -157,16 +157,18 @@
       </v-row>
     </v-container>
     <v-divider></v-divider>
-    <div class="container" v-if="owned.length">
-      <h3 class="text-h4 mt-6 mb-6">Sessions you created</h3>
-      <SessionsList v-bind:sessions="owned" />
-    </div>
-    <div class="container" v-if="watched.length">
-      <h3 class="text-h4 mt-6 mb-6">Sessions on your agenda</h3>
-      <SessionsList v-bind:sessions="watched" />
-    </div>
-    <div class="container" v-else>
-      <h3 class="text-h4 mt-6 mb-6">There are no sessions on your agenda</h3>
+    <div v-if="!username">
+      <div class="container" v-if="owned.length">
+        <h3 class="text-h4 mt-6 mb-6">Sessions you created</h3>
+        <SessionsList v-bind:sessions="owned" />
+      </div>
+      <div class="container" v-if="watched.length">
+        <h3 class="text-h4 mt-6 mb-6">Sessions on your agenda</h3>
+        <SessionsList v-bind:sessions="watched" />
+      </div>
+      <div class="container" v-else>
+        <h3 class="text-h4 mt-6 mb-6">There are no sessions on your agenda</h3>
+      </div>
     </div>
   </div>
 </template>
@@ -174,7 +176,6 @@
 <script>
 import SessionsList from "@/components/SessionsList";
 import { db, storage } from "@/firebase";
-import { getUserDetails } from "@/helpers";
 
 export default {
   name: "Profile",
@@ -191,7 +192,8 @@ export default {
         instagram: "",
         linkedin: "",
         github: ""
-      }
+      },
+      newAvatar: false
     };
   },
   asyncComputed: {
@@ -208,7 +210,7 @@ export default {
   },
   computed: {
     profileWatched() {
-      return this.$store.state.sessions.filter(a => {
+      return this.$store.state.sessions.sessions.filter(a => {
         return this.profileDetails.watched.indexOf(a.id) !== -1;
       });
     },
@@ -221,10 +223,10 @@ export default {
     details() {
       return this.username
         ? this.profileDetails
-        : this.$store.state.userDetails;
+        : this.$store.state.user.userDetails;
     },
     owned() {
-      return this.$store.state.ownedSessions;
+      return this.$store.state.user.owned;
     },
     socialLinks() {
       return this.details && this.details.social ? this.details.social : {};
@@ -233,22 +235,18 @@ export default {
       if (this.username) {
         return this.profileDetails ? this.profileWatched : {};
       } else {
-        return this.$store.state.watchedSessions;
+        return this.$store.state.user.watched;
       }
     },
     isUser() {
-      if (!this.details) return;
-      return (
-        this.$store.state.userDetails.username == this.username ||
-        !this.username
-      );
+      // if (!this.details) return;
+      return !this.username;
     }
   },
   components: {
     SessionsList
   },
   methods: {
-    getUserDetails,
     toggleEditing() {
       this.editing = !this.editing;
       this.syncEditingDetails();
@@ -271,14 +269,9 @@ export default {
           .ref(`avatar-${this.details.username}`)
           .put(this.imageData);
       }
-      console.log({
+      this.$store.dispatch("user/updateDetails", {
         displayName: this.displayName,
-        avatar: `https://firebasestorage.googleapis.com/v0/b/vue-auth-test-d1926.appspot.com/o/thumbs%2Favatar-${this.details.username}_400x400?alt=media`,
-        social: { ...this.social }
-      });
-      this.$store.dispatch("updateDetails", {
-        displayName: this.displayName,
-        avatar: `https://firebasestorage.googleapis.com/v0/b/vue-auth-test-d1926.appspot.com/o/thumbs%2Favatar-${this.details.username}_400x400?alt=media`,
+        avatar: this.avatar,
         social: this.social
       });
     },
@@ -315,7 +308,7 @@ export default {
       );
     }
   },
-  created() {
+  mounted() {
     this.syncEditingDetails();
   },
   watch: {

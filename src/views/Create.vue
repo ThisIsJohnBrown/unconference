@@ -189,10 +189,10 @@ export default {
       ];
       if (!errors.length) {
         this.hasSubmitted = true;
-        const startTime = TimeStamp.fromMillis(this.startTime.val * 1000);
-        const endTime = TimeStamp.fromMillis(this.endTime.val * 1000);
+        const startTime = TimeStamp.fromMillis(this.startTime.val);
+        const endTime = TimeStamp.fromMillis(this.endTime.val);
         string_to_slug;
-        this.$store.dispatch("addSession", {
+        this.$store.dispatch("sessions/addSession", {
           startTime,
           endTime,
           title: this.title,
@@ -201,10 +201,10 @@ export default {
           type: this.type.val,
           details: this.details,
           created_by: {
-            id: this.$store.state.user.uid,
-            username: this.$store.state.userDetails.username,
-            displayName: this.$store.state.userDetails.displayName,
-            avatar: this.$store.state.userDetails.avatar
+            id: this.$store.state.user.user.uid,
+            username: this.$store.state.user.userDetails.username,
+            displayName: this.$store.state.user.userDetails.displayName,
+            avatar: this.$store.state.user.userDetails.avatar
           },
           tags: this.addedTags,
           visible: [],
@@ -215,13 +215,13 @@ export default {
   },
   computed: {
     isAuthenticated() {
-      return this.$store.state.user?.uid;
+      return this.$store.getters[`user/isAuthenticated`];
     },
     tags() {
-      return this.$store.state.conference?.tags;
+      return this.conference.tags;
     },
     conference() {
-      return this.$store.state.conference || {};
+      return this.$store.state.conferences.conference || {};
     },
     timeBlocks() {
       if (!this.conference.numBlocks) return [];
@@ -257,7 +257,7 @@ export default {
         let [hour, minute] = t.end.toLocaleTimeString("en-US").split(/:| /);
         times.push({
           time: `${hour}:${minute}`,
-          val: t.end.seconds
+          val: t.end.getTime()
         });
       });
       return times;

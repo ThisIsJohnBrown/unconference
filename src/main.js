@@ -16,12 +16,13 @@ firebase.auth().onAuthStateChanged(user => {
   if (!app) {
     if (user) {
       store.commit({
-        type: "loginUser",
+        type: "user/loginUser",
         user
       });
+      store.dispatch("user/bindUser", user.uid);
     } else {
       store.commit({
-        type: "logoutUser"
+        type: "user/logoutUser"
       });
     }
     app = new Vue({

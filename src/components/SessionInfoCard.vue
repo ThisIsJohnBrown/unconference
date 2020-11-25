@@ -76,7 +76,7 @@ export default {
       this.cardIsOpen = !this.cardIsOpen;
     },
     async toggleWatch() {
-      this.$store.dispatch("updateWatched", {
+      this.$store.dispatch("user/updateWatched", {
         session: this.session
       });
     }
@@ -101,18 +101,22 @@ export default {
       return this.minutesUntilStart < 30 && this.minutesUntilStart >= 0;
     },
     currentWatched() {
-      return this.$store.state.userDetails.watched
-        ? [...this.$store.state.userDetails.watched]
+      return this.$store.state.user.watched
+        ? [...this.$store.state.user.watched]
         : [];
     },
     isWatched() {
-      return this.currentWatched.indexOf(this.session.id) === -1 ? false : true;
+      return this.currentWatched.filter(
+        session => session.id === this.session.id
+      ).length === 1
+        ? true
+        : false;
     },
     isActive() {
       return this.minutesUntilStart <= 0 && this.minutesUntilEnd >= 0;
     },
     isOwner() {
-      return this.session?.created_by.id === this.$store.state.user.uid;
+      return this.session?.created_by.id === this.$store.state.user.user.uid;
     },
     isCompleted() {
       return this.minutesUntilEnd < 0;
@@ -124,7 +128,7 @@ export default {
       return "";
     },
     isAuthenticated() {
-      return this.$store.state.user?.uid;
+      return this.$store.getters[`user/isAuthenticated`];
     },
     prettyDate() {
       const startTime = Intl.DateTimeFormat("en", {

@@ -136,10 +136,10 @@ export default {
   }),
   computed: {
     isAuthenticated() {
-      return this.$store.state.user?.uid;
+      return this.$store.getters[`user/isAuthenticated`];
     },
     conferenceName() {
-      return this.$store.state.conference?.name;
+      return this.$store.state.conferences.conference?.name;
     }
   }
 };

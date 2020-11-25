@@ -74,9 +74,11 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.name === "Register" && store.state.user.uid) next({ name: "Home" });
-  if (to.name === "Login" && store.state.user.uid) next({ name: "Home" });
-  if (to.name === "Profile" && !store.state.user.uid) next({ name: "Home" });
+  if (to.name === "Register" && store.state.user.user.uid)
+    next({ name: "Home" });
+  if (to.name === "Login" && store.state.user.user.uid) next({ name: "Home" });
+  if (to.name === "Profile" && !store.state.user.user.uid)
+    next({ name: "Home" });
   else next();
 });
 

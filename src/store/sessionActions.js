@@ -5,7 +5,9 @@ async function bindSession(context, slug) {
   return await context.bindFirestoreRef(
     "session",
     db
-      .collection(`conferences/${context.state.conference.id}/sessions`)
+      .collection(
+        `conferences/${context.state.conferences.conference.id}/sessions`
+      )
       .where("slug", "==", slug)
       .limit(1)
   );
@@ -23,7 +25,9 @@ async function addSession(context, payload) {
   try {
     const uid = auth.currentUser.uid;
     return await db
-      .collection(`conferences/${context.state.conference.id}/sessions`)
+      .collection(
+        `conferences/${context.state.conferences.conference.id}/sessions`
+      )
       .add({
         ...payload,
         slug: `${string_to_slug(payload.title)}-${uid.slice(0, 6)}`
@@ -33,12 +37,16 @@ async function addSession(context, payload) {
   }
 }
 function deleteSession(context, payload) {
-  db.collection(`conferences/${context.state.conference.id}/sessions`)
+  db.collection(
+    `conferences/${context.state.conferences.conference.id}/sessions`
+  )
     .doc(payload)
     .delete();
 }
 function updateSession(context, payload) {
-  db.collection(`conferences/${context.state.conference.id}/sessions`)
+  db.collection(
+    `conferences/${context.state.conferences.conference.id}/sessions`
+  )
     .doc(payload.id)
     .set(payload.data, { merge: true });
 }

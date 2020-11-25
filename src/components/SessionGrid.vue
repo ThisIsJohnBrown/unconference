@@ -64,7 +64,7 @@ export default {
   }),
   computed: {
     sessions() {
-      return this.$store.state.sessions;
+      return this.$store.state.sessions.sessions;
     },
     events() {
       if (!this.sessions) return [];
@@ -81,8 +81,8 @@ export default {
     },
     conference() {
       // eslint-disable-next-line
-      if (!this.$store.state.conference.hasOwnProperty("name")) return false;
-      return this.$store.state.conference;
+      if (!this.$store.state.conferences.conference.hasOwnProperty("name")) return false;
+      return this.$store.state.conferences.conference;
     },
     date() {
       if (!this.conference?.startTime?.seconds) return "";

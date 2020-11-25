@@ -1,15 +1,14 @@
 <template>
   <v-app id="app">
     <Navbar />
-    <v-content>
+    <v-main>
       <router-view />
-    </v-content>
+    </v-main>
     <Footer />
   </v-app>
 </template>
 
 <script>
-import { auth } from "@/firebase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 export default {
@@ -22,39 +21,27 @@ export default {
     Navbar,
     Footer
   },
-  created() {
-    this.$store.dispatch("bindConference", process.env.VUE_APP_CONFERENCE_ID);
-    this.$store.dispatch("bindSessions", process.env.VUE_APP_CONFERENCE_ID);
+  async created() {
+    await this.$store.dispatch(
+      "conferences/bindConference",
+      process.env.VUE_APP_CONFERENCE_ID
+    );
+    this.$store.dispatch(
+      "sessions/bindSessions",
+      process.env.VUE_APP_CONFERENCE_ID
+    );
+    await this.$store.dispatch("user/bindUserOwned");
+    this.$store.dispatch("user/bindUserWatched");
   },
   computed: {
     conference() {
-      return this.$store.state.conference || null;
+      return this.$store.state.conferences.conference || null;
     }
   },
   watch: {
-    conference() {
-      if (!this.$store.state.userDetails.username && this.user) {
-        this.$store.dispatch("bindUser", this.user.uid);
-      }
-    }
+    conference() {}
   },
-  mounted() {
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        this.user = user;
-        if (this.conference) {
-          this.$store.commit({
-            type: "loginUser",
-            user
-          });
-        }
-      } else {
-        this.$store.commit({
-          type: "logoutUser"
-        });
-      }
-    });
-  }
+  mounted() {}
 };
 </script>
 

@@ -95,12 +95,12 @@ export default {
   methods: {},
   computed: {
     isAuthenticated() {
-      return this.$store.state.user?.uid;
+      return this.$store.getters[`user/isAuthenticated`];
     },
     conference() {
-      return this.$store.state.conference &&
-        this.$store.state.conference?.startTime
-        ? this.$store.state.conference
+      return this.$store.state.conferences.conference &&
+        this.$store.state.conferences.conference?.startTime
+        ? this.$store.state.conferences.conference
         : null;
     },
     prettyDate() {

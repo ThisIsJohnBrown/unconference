@@ -1,9 +1,3 @@
-import store from "./store/index.js";
-
-const getUserDetails = id => {
-  return store.state.sessionCreators.filter(c => c.id === id)[0];
-};
-
 const string_to_slug = str => {
   str = str.replace(/^\s+|\s+$/g, ""); // trim
   str = str.toLowerCase();
@@ -32,4 +26,4 @@ const unique = (value, index, self) => {
   return self.indexOf(value) === index;
 };
 
-export { string_to_slug, chunk, unique, getUserDetails };
+export { string_to_slug, chunk, unique };

@@ -324,7 +324,7 @@ export default {
       return this.session?.open;
     },
     conference() {
-      return this.$store.state.conference;
+      return this.$store.state.conferences.conference;
     }
   },
   watch: {
