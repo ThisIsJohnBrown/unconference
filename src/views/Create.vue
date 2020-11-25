@@ -207,8 +207,6 @@ export default {
             avatar: this.$store.state.userDetails.avatar
           },
           tags: this.addedTags,
-          handsRaised: [],
-          questions: [],
           visible: [],
           kicked: []
         });

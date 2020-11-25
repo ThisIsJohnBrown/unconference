@@ -99,7 +99,9 @@ export default {
       return this.$store.state.user?.uid;
     },
     sessions() {
-      return this.$store.state.sessions;
+      return this.$store.state.sessions?.length
+        ? this.$store.state.sessions
+        : [];
     }
   },
   components: {

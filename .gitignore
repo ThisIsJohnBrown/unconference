@@ -34,3 +34,4 @@ emulator-data/
 *.rules
 
 .scratch
+local/

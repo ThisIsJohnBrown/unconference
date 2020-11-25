@@ -104,7 +104,7 @@
                       alt="Lower hand"
                       outlined
                       tile
-                      @click="deleteQuestion(i)"
+                      @click="deleteQuestion(question.id)"
                     >
                       Delete
                     </v-btn>
@@ -141,11 +141,16 @@
                       alt="Unmute"
                       outlined
                       tile
-                      @click="toggleVisibleParticipant(hand.id)"
+                      @click="toggleVisibleParticipant(hand.participantId)"
                     >
                       Unmute
                     </v-btn>
-                    <v-btn alt="Lower hand" tile outlined @click="lowerHand(i)">
+                    <v-btn
+                      alt="Lower hand"
+                      tile
+                      outlined
+                      @click="lowerHand(hand.id)"
+                    >
                       Delete
                     </v-btn>
                   </v-card-actions>
@@ -186,7 +191,6 @@
 </template>
 
 <script>
-import { unique } from "@/helpers";
 import { TimeStamp } from "@/firebase";
 
 export default {
@@ -214,25 +218,11 @@ export default {
         }
       });
     },
-    deleteQuestion(index) {
-      const questions = [...this.questions];
-      questions.splice(index, 1);
-      this.$store.dispatch("updateSession", {
-        id: this.session.id,
-        data: {
-          questions
-        }
-      });
+    deleteQuestion(id) {
+      this.$store.dispatch("deleteQuestion", id);
     },
-    lowerHand(index) {
-      const handsRaised = [...this.handsRaised];
-      handsRaised.splice(index, 1);
-      this.$store.dispatch("updateSession", {
-        id: this.session.id,
-        data: {
-          handsRaised: handsRaised.filter(unique)
-        }
-      });
+    lowerHand(id) {
+      this.$store.dispatch("lowerHand", id);
     },
     startSession() {
       if (!this.isActive) {
@@ -272,8 +262,6 @@ export default {
           active: false,
           activeTime: null,
           visible: [],
-          questions: [],
-          handsRaised: [],
           randomSlug: "",
           randomPassword: "",
           speaker: ""
@@ -293,11 +281,14 @@ export default {
       return this.visibleParticipants.indexOf(id) === -1 ? true : false;
     },
     isSpeaker(id) {
-      return this.session.speaker === id ? true : false;
+      return this.session?.speaker === id ? true : false;
     },
     joinSession() {
       this.$emit("joinSession");
     }
+  },
+  mounted() {
+    this.$store.dispatch("bindAdminSession");
   },
   computed: {
     session() {
@@ -307,10 +298,12 @@ export default {
       return this.session?.type;
     },
     questions() {
-      return this.session?.questions;
+      if (!this.$store.state.questions) return [];
+      return this.$store.state.questions.filter(question => !question.deleted);
     },
     handsRaised() {
-      return this.session?.handsRaised;
+      if (!this.$store.state.hands) return [];
+      return this.$store.state.hands.filter(hand => hand.raised);
     },
     visibleParticipants() {
       return this.session?.visible;

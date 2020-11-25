@@ -139,7 +139,7 @@ export default {
       return this.$store.state.user?.uid;
     },
     conferenceName() {
-      return this.$store.state.conference.name;
+      return this.$store.state.conference?.name;
     }
   }
 };

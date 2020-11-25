@@ -45,7 +45,16 @@ async function createRaisedHand(sessionId, id) {
     .collection(`conferences/${conferenceName}/sessions/${sessionId}/hands`)
     .doc(id)
     .set({
-      id: id,
+      content: "before"
+    });
+}
+
+async function createAskedQuestion(sessionId, id) {
+  const admin = getAdminFirestore();
+  await admin
+    .collection(`conferences/${conferenceName}/sessions/${sessionId}/questions`)
+    .doc(id)
+    .set({
       content: "before"
     });
 }
@@ -56,6 +65,51 @@ function getAdminFirestore() {
     .firestore();
   return db;
 }
+
+describe("User", () => {
+  it("Anonymous user cannot create a User's data", async () => {
+    const db = getFirestore(null);
+
+    const testDoc = db.collection("users").doc("testDoc");
+    await firebase.assertFails(testDoc.set({ foo: "bar" }));
+  });
+
+  it("Authorized user create their own User data", async () => {
+    const db = getFirestore(myAuth);
+    const testDoc = db.collection("users").doc(myId);
+    await firebase.assertSucceeds(testDoc.set({ title: "test" }));
+  });
+
+  it("Authorized user cannot create User data not belonging to themselves", async () => {
+    const db = getFirestore(theirAuth);
+    const testDoc = db.collection("users").doc(myId);
+    await firebase.assertFails(testDoc.set({ title: "test" }));
+  });
+
+  it("Authorized user can update User data belonging to themselves", async () => {
+    const db = getFirestore(myAuth);
+    const admin = getAdminFirestore();
+    await admin
+      .collection("users")
+      .doc(myId)
+      .set({ content: "before" });
+
+    const testDoc = db.collection("users").doc(myId);
+    await firebase.assertSucceeds(testDoc.update({ content: "after" }));
+  });
+
+  it("Authorized user cannot update User data belonging another user", async () => {
+    const db = getFirestore(theirAuth);
+    const admin = getAdminFirestore();
+    await admin
+      .collection("users")
+      .doc(myId)
+      .set({ content: "before" });
+
+    const testDoc = db.collection("users").doc(myId);
+    await firebase.assertFails(testDoc.update({ content: "after" }));
+  });
+});
 
 describe("Conferences", () => {
   it("Anonymous user can read conference info", async () => {
@@ -102,7 +156,7 @@ describe("Sessions", () => {
       const testDoc = db
         .collection(`conferences/${conferenceName}/sessions`)
         .doc(sessionId);
-      await firebase.assertSucceeds(testDoc.set({ foo: "bar" }));
+      await firebase.assertSucceeds(testDoc.set({ created_by: { id: myId } }));
     });
 
     it("Registered user can update a session owned by them", async () => {
@@ -151,12 +205,12 @@ describe("Sessions", () => {
 
     it("Registered user can update own raised hand", async () => {
       await createSession(sessionId, myId);
-      await createRaisedHand(sessionId, myId);
+      await createRaisedHand(sessionId, theirId);
 
-      const db = getFirestore(myAuth);
+      const db = getFirestore(theirAuth);
       const testDoc = db
         .collection(`conferences/${conferenceName}/sessions/${sessionId}/hands`)
-        .doc(myId);
+        .doc(theirId);
       await firebase.assertSucceeds(testDoc.update({ content: "after" }));
     });
 
@@ -171,18 +225,21 @@ describe("Sessions", () => {
       await firebase.assertFails(testDoc.update({ content: "after" }));
     });
 
-    it("Session owner can update raised hands of own session", async () => {
-      firebase.assertFails();
-    });
+    it("Session owner can update raised hands of owned session", async () => {
+      await createSession(sessionId, myId);
+      await createRaisedHand(sessionId, theirId);
 
-    it("Session owner can update raised hands of own session", async () => {
-      firebase.assertFails();
+      const db = getFirestore(myAuth);
+      const testDoc = db
+        .collection(`conferences/${conferenceName}/sessions/${sessionId}/hands`)
+        .doc(theirId);
+      await firebase.assertSucceeds(testDoc.update({ content: "after" }));
     });
   });
 
   describe("Questions", () => {
     const sessionId = "session123";
-    it("Anonymous user cannot ask questions", async () => {
+    it("Anonymous user cannot ask question", async () => {
       await createSession(sessionId, myId);
 
       const db = getFirestore(null);
@@ -194,7 +251,7 @@ describe("Sessions", () => {
       await firebase.assertFails(testDoc.set({ id: myId }));
     });
 
-    it("Registered user can ask a question in a Session", async () => {
+    it("Registered user can ask question in a Session", async () => {
       await createSession(sessionId, myId);
 
       const db = getFirestore(myAuth);
@@ -206,9 +263,22 @@ describe("Sessions", () => {
       await firebase.assertSucceeds(testDoc.set({ id: myId }));
     });
 
-    it("Registered user cannot update non-owned question", async () => {
+    it("Registered user can update own asked questions", async () => {
       await createSession(sessionId, myId);
-      await createRaisedHand(sessionId, myId);
+      await createAskedQuestion(sessionId, theirId);
+
+      const db = getFirestore(theirAuth);
+      const testDoc = db
+        .collection(
+          `conferences/${conferenceName}/sessions/${sessionId}/questions`
+        )
+        .doc(theirId);
+      await firebase.assertSucceeds(testDoc.update({ content: "after" }));
+    });
+
+    it("Registered user cannot update non-owned asked questions", async () => {
+      await createSession(sessionId, myId);
+      await createAskedQuestion(sessionId, myId);
 
       const db = getFirestore(theirAuth);
       const testDoc = db
@@ -219,12 +289,17 @@ describe("Sessions", () => {
       await firebase.assertFails(testDoc.update({ content: "after" }));
     });
 
-    it("Session owner can update raised hands of own session", async () => {
-      firebase.assertFails();
-    });
+    it("Session owner can update asked questions of owned session", async () => {
+      await createSession(sessionId, myId);
+      await createAskedQuestion(sessionId, theirId);
 
-    it("Session owner can update raised hands of own session", async () => {
-      firebase.assertFails();
+      const db = getFirestore(myAuth);
+      const testDoc = db
+        .collection(
+          `conferences/${conferenceName}/sessions/${sessionId}/questions`
+        )
+        .doc(theirId);
+      await firebase.assertSucceeds(testDoc.update({ content: "after" }));
     });
   });
 });

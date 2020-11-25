@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import { TimeStamp } from "@/firebase";
 export default {
   name: "SessionWatcherPanel",
   data: function() {
@@ -41,22 +42,25 @@ export default {
       this.isHandRaised = !this.isHandRaised;
       if (this.isHandRaised) {
         const raisedHand = {
-          user: this.$store.state.user.uid,
+          id: this.$store.state.user.uid,
           username: this.$store.state.userDetails.username,
-          avatarURL: `https://robohash.org/${this.$store.state.userDetails.username}.png`,
-          id: this.participantId
+          avatarURL: this.$store.state.userDetails.avatar,
+          participantId: this.participantId,
+          time: TimeStamp.fromDate(new Date()),
+          raised: true
         };
         this.$store.dispatch("addRaisedHand", raisedHand);
       } else {
-        this.$store.dispatch("removeRaisedHand", this.$store.state.user.uid);
+        this.$store.dispatch("lowerHand", this.$store.state.user.uid);
       }
     },
     submitQuestion() {
       const question = {
-        user: this.$store.state.user.uid,
+        id: this.$store.state.user.uid,
         username: this.$store.state.userDetails.username,
-        avatarURL: `https://robohash.org/${this.$store.state.userDetails.username}.png`,
+        avatarURL: this.$store.state.userDetails.avatar,
         question: this.question,
+        time: TimeStamp.fromDate(new Date()),
         anonymous: this.anonymous
       };
       this.$store.dispatch("addQuestion", question);

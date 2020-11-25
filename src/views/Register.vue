@@ -163,7 +163,8 @@ export default {
         const details = await register({
           email: this.email,
           password: this.password,
-          username: this.username
+          username: this.username,
+          displayName: this.displayName
         });
         this.error =
           details.success === false ? details.data?.error.message : "";
