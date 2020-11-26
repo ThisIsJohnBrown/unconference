@@ -33,7 +33,7 @@ export default {
       );
     }),
     bindUserWatched: firestoreAction(async context => {
-      context.bindFirestoreRef(
+      await context.bindFirestoreRef(
         "watched",
         db
           .collection(

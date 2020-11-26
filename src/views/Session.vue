@@ -327,15 +327,23 @@ export default {
       return this.$store.state.conferences.conference;
     }
   },
+  async mounted() {
+    this.slug = this.$route.params.slug;
+    try {
+      await this.$store.dispatch("bindSession", this.slug);
+    } catch (error) {
+      console.error(error.message);
+    }
+  },
   watch: {
-    async conference() {
-      this.slug = this.$route.params.slug;
-      try {
-        await this.$store.dispatch("bindSession", this.slug);
-      } catch (error) {
-        console.error(error.message);
-      }
-    },
+    // async conference() {
+    //   this.slug = this.$route.params.slug;
+    //   try {
+    //     await this.$store.dispatch("bindSession", this.slug);
+    //   } catch (error) {
+    //     console.error(error.message);
+    //   }
+    // },
     isActive(newActive, oldActive) {
       if (oldActive === true && newActive === false) {
         this.tempToggle = true;

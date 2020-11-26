@@ -134,14 +134,8 @@ export default {
       }
     ]
   }),
-  computed: {
-    isAuthenticated() {
-      return this.$store.getters[`user/isAuthenticated`];
-    },
-    conferenceName() {
-      return this.$store.state.conferences.conference?.name;
-    }
-  }
+  computed: {},
+  props: ["isAuthenticated", "conferenceName"]
 };
 </script>
 

@@ -316,6 +316,9 @@ export default {
       if (newDetails) {
         this.syncEditingDetails();
       }
+    },
+    $route() {
+      this.syncEditingDetails();
     }
   }
 };

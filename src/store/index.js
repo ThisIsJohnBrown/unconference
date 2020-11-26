@@ -2,10 +2,9 @@ import Vue from "vue";
 import Vuex from "vuex";
 import { vuexfireMutations, firestoreAction } from "vuexfire";
 import { db } from "../firebase";
-import { bindSession } from "./sessionActions";
 import modules from "./modules";
 
-Vue.config.devtools = true; //process.env.NODE_ENV === 'development'
+Vue.config.devtools = true; //process.env.NODE_ENV === "development";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -20,13 +19,21 @@ export default new Vuex.Store({
   },
   actions: {
     bindSession: firestoreAction(async (context, slug) => {
-      let sessions;
+      let session;
       try {
-        sessions = bindSession(context, slug);
+        session = await context.bindFirestoreRef(
+          "session",
+          db
+            .collection(
+              `conferences/${context.state.conferences.conference.id}/sessions`
+            )
+            .where("slug", "==", slug)
+            .limit(1)
+        );
       } catch (error) {
         console.error(error.message);
       }
-      return sessions;
+      return session;
     }),
     bindAdminSession: firestoreAction(async context => {
       context.bindFirestoreRef(

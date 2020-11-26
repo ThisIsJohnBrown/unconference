@@ -95,9 +95,6 @@ export default {
         return [];
       }
     },
-    isAuthenticated() {
-      return this.$store.getters[`user/isAuthenticated`];
-    },
     sessions() {
       return this.$store.state.sessions.sessions?.length
         ? this.$store.state.sessions.sessions

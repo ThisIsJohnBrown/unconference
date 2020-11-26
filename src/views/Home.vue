@@ -76,13 +76,6 @@ export default {
   name: "Home",
   data: function() {
     return {
-      isRegistering: false,
-      session: {
-        title: "",
-        details: "",
-        type: "presentation",
-        time: "12:00-12:30"
-      },
       images: [
         require("@/assets/create.png"),
         require("@/assets/many.png"),
@@ -92,36 +85,42 @@ export default {
       shapes: [require("@/assets/shapes1.png"), require("@/assets/shapes2.png")]
     };
   },
-  methods: {},
-  computed: {
-    isAuthenticated() {
-      return this.$store.getters[`user/isAuthenticated`];
-    },
-    conference() {
-      return this.$store.state.conferences.conference &&
-        this.$store.state.conferences.conference?.startTime
-        ? this.$store.state.conferences.conference
-        : null;
-    },
-    prettyDate() {
+  methods: {
+    getPrettyDate(start, end) {
       const day = Intl.DateTimeFormat(navigator.language, {
         weekday: "long",
         month: "short",
         day: "numeric"
-      }).format(new Date(this.conference?.startTime?.seconds * 1000));
+      }).format(new Date(start.seconds * 1000));
 
       const startTime = Intl.DateTimeFormat("en", {
         hour: "numeric",
         minute: "numeric",
         hour12: true
-      }).format(new Date(this.conference?.startTime?.seconds * 1000));
+      }).format(new Date(start.seconds * 1000));
 
       const endTime = Intl.DateTimeFormat("en", {
         hour: "numeric",
         minute: "numeric",
         hour12: true
-      }).format(new Date(this.conference?.endTime?.seconds * 1000));
+      }).format(new Date(end.seconds * 1000));
       return `${day} ${startTime}-${endTime}`;
+    }
+  },
+  computed: {
+    isAuthenticated() {
+      return this.$store.getters[`user/isAuthenticated`];
+    },
+    conference() {
+      return this.$store.getters[`conferences/conference`];
+    },
+    prettyDate() {
+      return Object.keys(this.conference).length
+        ? this.getPrettyDate(
+            this.conference?.startTime,
+            this.conference?.endTime
+          )
+        : "";
     }
   },
   components: {}

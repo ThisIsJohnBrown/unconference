@@ -23,6 +23,7 @@ let dbSettings = {
 if (process.env.VUE_APP_FIREBASE_EMULATOR === "true") {
   dbSettings.host = "localhost:8080";
   dbSettings.ssl = false;
+  auth.useEmulator("http://localhost:9099/");
 }
 db.settings(dbSettings);
 
@@ -51,8 +52,8 @@ const register = async data => {
       username: data.username,
       verified: false,
       avatar: `https://robohash.org/${data.username}.jpg`,
-      watched: [],
       joined: [],
+      watched: ["1"],
       social: {
         github: "",
         homepage: "",
@@ -85,23 +86,33 @@ const register = async data => {
 const googleLogin = async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   const data = await firebase.auth().signInWithPopup(provider);
-  const username = data.user.email.slice(0, data.user.email.indexOf("@"));
-  const userData = {
-    displayName: data.user.displayName,
-    email: data.user.email,
-    username,
-    verified: false,
-    avatar: `https://robohash.org/${username}.jpg`,
-    watched: [],
-    joined: []
-  };
-  try {
-    await db
-      .collection("users")
-      .doc(data.user.uid)
-      .set(userData);
-  } catch (error) {
-    console.error(error.message);
+  if (data.additionalUserInfo.isNewUser) {
+    const username = data.user.email.slice(0, data.user.email.indexOf("@"));
+    const userData = {
+      displayName: data.user.displayName,
+      email: data.user.email,
+      username,
+      verified: false,
+      avatar: `https://robohash.org/${username}.jpg`,
+      joined: [],
+      watched: ["1"],
+      social: {
+        github: "",
+        homepage: "",
+        linkedin: "",
+        twitter: "",
+        instagram: ""
+      },
+      uid: data.user.uid
+    };
+    try {
+      await db
+        .collection("users")
+        .doc(data.user.uid)
+        .set(userData);
+    } catch (error) {
+      console.error(error.message);
+    }
   }
   return data;
 };

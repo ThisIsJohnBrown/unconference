@@ -6,6 +6,11 @@ export default {
   state: {
     conference: {}
   },
+  getters: {
+    conference: state => {
+      return state.conference;
+    }
+  },
   actions: {
     bindConference: firestoreAction(async ({ bindFirestoreRef }, id) => {
       try {

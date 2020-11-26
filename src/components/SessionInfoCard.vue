@@ -31,6 +31,14 @@
           >
         </p>
         <p>{{ prettyDate }}</p>
+        <p>
+          <countdown :end-time="session.startTime.seconds * 1000">
+            <span slot="process" slot-scope="slot">{{
+              `Starts in ${slot.timeObj.h}:${slot.timeObj.m}:${slot.timeObj.s}`
+            }}</span>
+            <span slot="finish"></span>
+          </countdown>
+        </p>
         <p>{{ session.details }}</p>
       </v-card-subtitle>
 

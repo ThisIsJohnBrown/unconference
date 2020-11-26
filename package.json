@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --port 8086",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "generate": "node src/generators.js",
     "mocha": "mocha",
-    "emulators": "firebase emulators:start --import=./emulator-data --export-on-exit"
+    "emulators": "kill -9 $(lsof -ti tcp:8080); firebase emulators:start --import=./emulator-data --export-on-exit"
   },
   "dependencies": {
     "core-js": "^3.6.5",
@@ -16,6 +16,7 @@
     "firebase": "^8.0.1",
     "vue": "^2.6.11",
     "vue-async-computed": "3.9.0",
+    "vue-awesome-countdown": "^1.1.2",
     "vue-router": "^3.2.0",
     "vuelidate": "^0.7.6",
     "vuetify": "^2.2.11",

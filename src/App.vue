@@ -1,8 +1,11 @@
 <template>
   <v-app id="app">
-    <Navbar />
+    <Navbar
+      :conferenceName="conference.name"
+      :isAuthenticated="isAuthenticated"
+    />
     <v-main>
-      <router-view />
+      <router-view :isAuthenticated="isAuthenticated" />
     </v-main>
     <Footer />
   </v-app>
@@ -21,21 +24,13 @@ export default {
     Navbar,
     Footer
   },
-  async created() {
-    await this.$store.dispatch(
-      "conferences/bindConference",
-      process.env.VUE_APP_CONFERENCE_ID
-    );
-    this.$store.dispatch(
-      "sessions/bindSessions",
-      process.env.VUE_APP_CONFERENCE_ID
-    );
-    await this.$store.dispatch("user/bindUserOwned");
-    this.$store.dispatch("user/bindUserWatched");
-  },
+  async created() {},
   computed: {
     conference() {
       return this.$store.state.conferences.conference || null;
+    },
+    isAuthenticated() {
+      return this.$store.getters[`user/isAuthenticated`];
     }
   },
   watch: {
