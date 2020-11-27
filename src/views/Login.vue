@@ -19,6 +19,7 @@
                 v-model="$v.email.$model"
                 :error-messages="emailErrors"
                 @focus="emailErrors = []"
+                data-cy="form-login-email"
               ></v-text-field>
               <v-text-field
                 type="password"
@@ -26,13 +27,20 @@
                 v-model="$v.password.$model"
                 :error-messages="passwordErrors"
                 @focus="passwordErrors = []"
+                data-cy="form-login-password"
               ></v-text-field>
 
-              <p class="red--text">{{ error }}</p>
-              <v-btn class="mr-4" @click="loginEmailPassword">
+              <p class="red--text" v-if="error" data-cy="form-login-error">
+                {{ error }}
+              </p>
+              <v-btn
+                class="mr-4"
+                @click="loginEmailPassword"
+                data-cy="form-login-submit"
+              >
                 submit
               </v-btn>
-              <v-btn @click="clear">
+              <v-btn @click="clear" data-cy="form-login-clear">
                 clear
               </v-btn>
             </v-form>
@@ -46,7 +54,7 @@
 <script>
 import { validationMixin } from "vuelidate";
 import { required, email, minLength } from "vuelidate/lib/validators";
-import { emailPasswordLogin, googleLogin } from "@/firebase";
+import { googleLogin } from "@/firebase";
 export default {
   name: "Login",
   mixins: [validationMixin],
@@ -92,10 +100,13 @@ export default {
       const errors = [...this.passwordErrors, ...this.emailErrors];
       if (!errors.length) {
         try {
-          const details = await emailPasswordLogin({
-            email: this.email,
-            password: this.password
-          });
+          const details = await this.$store.dispatch(
+            "user/emailPasswordLogin",
+            {
+              email: this.email,
+              password: this.password
+            }
+          );
           this.error =
             details.success === false ? details.data.error.message : "";
           if (!this.error) {

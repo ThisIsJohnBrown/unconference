@@ -1,5 +1,5 @@
 import { firestoreAction } from "vuexfire";
-import { db, FieldPath } from "@/firebase";
+import { db, auth, FieldPath } from "@/firebase";
 
 export default {
   namespaced: true,
@@ -93,6 +93,12 @@ export default {
       db.collection("users")
         .doc(context.state.userDetails.id)
         .set(payload, { merge: true });
+    },
+    emailPasswordLogin: async (context, data) => {
+      return await auth.signInWithEmailAndPassword(data.email, data.password);
+    },
+    logout: () => {
+      auth.signOut();
     }
   },
   mutations: {

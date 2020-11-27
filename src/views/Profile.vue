@@ -33,6 +33,7 @@
                 :label="isEditing ? 'Display Name' : ''"
                 placeholder="Display Name"
                 v-model="displayName"
+                data-cy="display-name-input"
               ></v-text-field>
               <v-container v-if="isEditing">
                 <v-row>
@@ -144,10 +145,19 @@
                 </v-row>
               </v-container>
               <div v-if="isUser">
-                <v-btn outlined tile @click="toggleEditing">{{
-                  editing ? "Cancel" : "Edit"
-                }}</v-btn>
-                <v-btn outlined tile @click="saveDetails" v-if="editing"
+                <v-btn
+                  data-cy="edit-cancel-button"
+                  outlined
+                  tile
+                  @click="toggleEditing"
+                  >{{ editing ? "Cancel" : "Edit" }}</v-btn
+                >
+                <v-btn
+                  data-cy="save-button"
+                  outlined
+                  tile
+                  @click="saveDetails"
+                  v-if="editing"
                   >Save</v-btn
                 >
               </div>

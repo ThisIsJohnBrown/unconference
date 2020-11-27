@@ -26,7 +26,7 @@ firebase.auth().onAuthStateChanged(async user => {
     });
   }
   if (!app) {
-    await store.dispatch(
+    store.dispatch(
       "conferences/bindConference",
       process.env.VUE_APP_CONFERENCE_ID
     );
@@ -45,6 +45,14 @@ firebase.auth().onAuthStateChanged(async user => {
       render: h => h(App)
     }).$mount("#app");
 
+    if (window.Cypress) {
+      window.__app__ = app;
+    }
+
     window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue = app.constructor;
+  } else {
+    await store.dispatch("user/bindUser", user.uid);
+    store.dispatch("user/bindUserOwned");
+    store.dispatch("user/bindUserWatched");
   }
 });

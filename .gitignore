@@ -35,3 +35,5 @@ emulator-data/
 
 .scratch
 local/
+
+cypress/

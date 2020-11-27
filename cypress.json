@@ -1,0 +1,14 @@
+{
+  "pluginsFile": "tests/e2e/plugins/index.js",
+  "fixturesFolder": "fixtures",
+  "integrationFolder": "tests/e2e/specs",
+  "screenshotsFolder": "tests/e2e/screenshots",
+  "videosFolder": "tests/e2e/videos",
+  "supportFile": "tests/e2e/support/index.js",
+  "baseUrl": "http://localhost:8086",
+  "env": {
+    "FIREBASE_SERVICE_ACCOUNT_KEY": "../../../service-account.json",
+    "FIRESTORE_DATABASEURL": "https://vue-auth-test-d1926.firebaseio.com",
+    "FIRESTORE_EMULATOR_HOST": "localhost:8080"
+  }
+}

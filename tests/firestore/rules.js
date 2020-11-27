@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 const firebase = require("@firebase/testing");
+// var debug = require("debug");
 
 const MY_PROJECT_ID = "vue-auth-test-d1926";
 const conferenceName = "local";
@@ -8,22 +9,34 @@ const theirId = "user_them";
 const myAuth = { uid: myId, email: "me@gmail.com" };
 const theirAuth = { uid: theirId, email: "them@gmail.com" };
 
-function getFirestore(auth) {
-  const db = firebase
-    .initializeTestApp({
-      projectId: MY_PROJECT_ID,
-      auth: auth
-    })
-    .firestore();
-  return db;
+let app;
+let db;
+let adminApp;
+let admin;
+
+async function getFirestore(auth) {
+  if (app) app.delete();
+  app = await firebase.initializeTestApp({
+    projectId: MY_PROJECT_ID,
+    auth: auth
+  });
+  db = app.firestore();
+}
+
+function getAdminFirestore() {
+  if (adminApp) adminApp.delete();
+  adminApp = firebase.initializeAdminApp({ projectId: MY_PROJECT_ID });
+  admin = adminApp.firestore();
 }
 
 beforeEach(async () => {
   await firebase.clearFirestoreData({ projectId: MY_PROJECT_ID });
+  if (app) app.delete();
+  if (adminApp) adminApp.delete();
 });
 
 async function createSession(sessionId, id) {
-  const admin = getAdminFirestore();
+  await getAdminFirestore();
   await admin
     .collection("conferences")
     .doc(conferenceName)
@@ -40,7 +53,7 @@ async function createSession(sessionId, id) {
 }
 
 async function createRaisedHand(sessionId, id) {
-  const admin = getAdminFirestore();
+  await getAdminFirestore();
   await admin
     .collection(`conferences/${conferenceName}/sessions/${sessionId}/hands`)
     .doc(id)
@@ -50,7 +63,7 @@ async function createRaisedHand(sessionId, id) {
 }
 
 async function createAskedQuestion(sessionId, id) {
-  const admin = getAdminFirestore();
+  await getAdminFirestore();
   await admin
     .collection(`conferences/${conferenceName}/sessions/${sessionId}/questions`)
     .doc(id)
@@ -59,36 +72,29 @@ async function createAskedQuestion(sessionId, id) {
     });
 }
 
-function getAdminFirestore() {
-  const db = firebase
-    .initializeAdminApp({ projectId: MY_PROJECT_ID })
-    .firestore();
-  return db;
-}
-
 describe("User", () => {
   it("Anonymous user cannot create a User's data", async () => {
-    const db = getFirestore(null);
+    await getFirestore(null);
 
     const testDoc = db.collection("users").doc("testDoc");
     await firebase.assertFails(testDoc.set({ foo: "bar" }));
   });
 
   it("Authorized user create their own User data", async () => {
-    const db = getFirestore(myAuth);
+    await getFirestore(myAuth);
     const testDoc = db.collection("users").doc(myId);
     await firebase.assertSucceeds(testDoc.set({ title: "test" }));
   });
 
   it("Authorized user cannot create User data not belonging to themselves", async () => {
-    const db = getFirestore(theirAuth);
+    await getFirestore(theirAuth);
     const testDoc = db.collection("users").doc(myId);
     await firebase.assertFails(testDoc.set({ title: "test" }));
   });
 
   it("Authorized user can update User data belonging to themselves", async () => {
-    const db = getFirestore(myAuth);
-    const admin = getAdminFirestore();
+    await getFirestore(myAuth);
+    await getAdminFirestore();
     await admin
       .collection("users")
       .doc(myId)
@@ -99,8 +105,8 @@ describe("User", () => {
   });
 
   it("Authorized user cannot update User data belonging another user", async () => {
-    const db = getFirestore(theirAuth);
-    const admin = getAdminFirestore();
+    await getFirestore(theirAuth);
+    await getAdminFirestore();
     await admin
       .collection("users")
       .doc(myId)
@@ -113,14 +119,14 @@ describe("User", () => {
 
 describe("Conferences", () => {
   it("Anonymous user can read conference info", async () => {
-    const db = getFirestore(null);
+    await getFirestore(null);
 
     const testDoc = db.collection("conferences").doc("testDoc");
     await firebase.assertSucceeds(testDoc.get());
   });
 
   it("Anonymous user cannot write to conferences", async () => {
-    const db = getFirestore(null);
+    await getFirestore(null);
 
     const testDoc = db.collection("conferences").doc("testDoc");
     await firebase.assertFails(testDoc.set({ title: "test" }));
@@ -129,14 +135,14 @@ describe("Conferences", () => {
 
 describe("Sessions", () => {
   it("Anonymous user can read all sessions", async () => {
-    const db = getFirestore(null);
+    await getFirestore(null);
 
     const testQuery = db.collection(`conferences/${conferenceName}/sessions`);
     await firebase.assertSucceeds(testQuery.get());
   });
   describe("Session CRUD", () => {
     it("Anonymous user cannot create a session", async () => {
-      const db = getFirestore(null);
+      await getFirestore(null);
 
       const testDoc = db
         .collection(`conferences/${conferenceName}/sessions`)
@@ -145,8 +151,8 @@ describe("Sessions", () => {
     });
 
     it("Registered user can create a session", async () => {
-      const db = getFirestore(myAuth);
-      const admin = getAdminFirestore();
+      await getFirestore(myAuth);
+      await getAdminFirestore();
       const sessionId = "session123";
 
       await admin
@@ -163,7 +169,7 @@ describe("Sessions", () => {
       const sessionId = "session123";
       await createSession(sessionId, myId);
 
-      const db = getFirestore(myAuth);
+      await getFirestore(myAuth);
       const testDoc = db
         .collection(`conferences/${conferenceName}/sessions`)
         .doc(sessionId);
@@ -174,7 +180,7 @@ describe("Sessions", () => {
       const sessionId = "session123";
       await createSession(sessionId, myId);
 
-      const db = getFirestore(theirAuth);
+      await getFirestore(theirAuth);
       const testDoc = db
         .collection(`conferences/${conferenceName}/sessions`)
         .doc(sessionId);
@@ -186,7 +192,7 @@ describe("Sessions", () => {
     it("Anonymous user cannot raise hand", async () => {
       await createSession(sessionId, myId);
 
-      const db = getFirestore(null);
+      await getFirestore(null);
       const testDoc = db
         .collection(`conferences/${conferenceName}/sessions/${sessionId}/hands`)
         .doc(myId);
@@ -196,7 +202,7 @@ describe("Sessions", () => {
     it("Registered user can raise hand in a Session", async () => {
       await createSession(sessionId, myId);
 
-      const db = getFirestore(myAuth);
+      await getFirestore(myAuth);
       const testDoc = db
         .collection(`conferences/${conferenceName}/sessions/${sessionId}/hands`)
         .doc(myId);
@@ -207,7 +213,7 @@ describe("Sessions", () => {
       await createSession(sessionId, myId);
       await createRaisedHand(sessionId, theirId);
 
-      const db = getFirestore(theirAuth);
+      await getFirestore(theirAuth);
       const testDoc = db
         .collection(`conferences/${conferenceName}/sessions/${sessionId}/hands`)
         .doc(theirId);
@@ -218,7 +224,7 @@ describe("Sessions", () => {
       await createSession(sessionId, myId);
       await createRaisedHand(sessionId, myId);
 
-      const db = getFirestore(theirAuth);
+      await getFirestore(theirAuth);
       const testDoc = db
         .collection(`conferences/${conferenceName}/sessions/${sessionId}/hands`)
         .doc(myId);
@@ -229,7 +235,7 @@ describe("Sessions", () => {
       await createSession(sessionId, myId);
       await createRaisedHand(sessionId, theirId);
 
-      const db = getFirestore(myAuth);
+      await getFirestore(myAuth);
       const testDoc = db
         .collection(`conferences/${conferenceName}/sessions/${sessionId}/hands`)
         .doc(theirId);
@@ -242,7 +248,7 @@ describe("Sessions", () => {
     it("Anonymous user cannot ask question", async () => {
       await createSession(sessionId, myId);
 
-      const db = getFirestore(null);
+      await getFirestore(null);
       const testDoc = db
         .collection(
           `conferences/${conferenceName}/sessions/${sessionId}/questions`
@@ -254,7 +260,7 @@ describe("Sessions", () => {
     it("Registered user can ask question in a Session", async () => {
       await createSession(sessionId, myId);
 
-      const db = getFirestore(myAuth);
+      await getFirestore(myAuth);
       const testDoc = db
         .collection(
           `conferences/${conferenceName}/sessions/${sessionId}/questions`
@@ -267,7 +273,7 @@ describe("Sessions", () => {
       await createSession(sessionId, myId);
       await createAskedQuestion(sessionId, theirId);
 
-      const db = getFirestore(theirAuth);
+      await getFirestore(theirAuth);
       const testDoc = db
         .collection(
           `conferences/${conferenceName}/sessions/${sessionId}/questions`
@@ -280,7 +286,7 @@ describe("Sessions", () => {
       await createSession(sessionId, myId);
       await createAskedQuestion(sessionId, myId);
 
-      const db = getFirestore(theirAuth);
+      await getFirestore(theirAuth);
       const testDoc = db
         .collection(
           `conferences/${conferenceName}/sessions/${sessionId}/questions`
@@ -293,7 +299,7 @@ describe("Sessions", () => {
       await createSession(sessionId, myId);
       await createAskedQuestion(sessionId, theirId);
 
-      const db = getFirestore(myAuth);
+      await getFirestore(myAuth);
       const testDoc = db
         .collection(
           `conferences/${conferenceName}/sessions/${sessionId}/questions`
@@ -306,14 +312,14 @@ describe("Sessions", () => {
 
 describe("Users", () => {
   it("Can write to a user document with the same ID as our user", async () => {
-    const db = getFirestore(myAuth);
+    await getFirestore(myAuth);
 
     const testDoc = db.collection("users").doc(myId);
     await firebase.assertSucceeds(testDoc.set({ foo: "bar" }));
   });
 
   it("Cannot write to a user document with a different ID as our user", async () => {
-    const db = getFirestore(myAuth);
+    await getFirestore(myAuth);
 
     const testDoc = db.collection("users").doc(theirId);
     await firebase.assertFails(testDoc.set({ foo: "bar" }));
@@ -322,4 +328,6 @@ describe("Users", () => {
 
 after(async () => {
   await firebase.clearFirestoreData({ projectId: MY_PROJECT_ID });
+  if (app) app.delete();
+  if (adminApp) adminApp.delete();
 });

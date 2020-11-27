@@ -23,6 +23,7 @@ let dbSettings = {
 if (process.env.VUE_APP_FIREBASE_EMULATOR === "true") {
   dbSettings.host = "localhost:8080";
   dbSettings.ssl = false;
+  dbSettings.experimentalForceLongPolling = true;
   auth.useEmulator("http://localhost:9099/");
 }
 db.settings(dbSettings);
@@ -117,22 +118,4 @@ const googleLogin = async () => {
   return data;
 };
 
-const emailPasswordLogin = async data => {
-  return firebase.auth().signInWithEmailAndPassword(data.email, data.password);
-};
-
-const logout = () => {
-  firebase.auth().signOut();
-};
-
-export {
-  auth,
-  db,
-  TimeStamp,
-  FieldPath,
-  googleLogin,
-  emailPasswordLogin,
-  logout,
-  register,
-  storage
-};
+export { auth, db, TimeStamp, FieldPath, googleLogin, register, storage };

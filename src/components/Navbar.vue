@@ -2,7 +2,7 @@
   <v-layout row justify-center>
     <v-toolbar class="hidden-sm-and-down">
       <v-toolbar-title
-        ><router-link :to="{ name: 'Home' }"
+        ><router-link :to="{ name: 'Home' }" data-cy="navbar-home-button"
           ><v-img :src="logo" width="40px"></v-img></router-link
         >{{ conferenceName }}</v-toolbar-title
       >
@@ -29,6 +29,7 @@
           outlined
           :to="{ name: 'Login' }"
           color="primary"
+          data-cy="navbar-login-button"
         >
           Login!
         </v-btn>
@@ -40,6 +41,7 @@
           outlined
           color="indigo"
           :to="{ name: 'Profile' }"
+          data-cy="navbar-profile-button"
         >
           Profile
         </v-btn>
@@ -49,6 +51,7 @@
           outlined
           color="indigo"
           @click.prevent="logout"
+          data-cy="navbar-logout-button"
         >
           Log out
         </v-btn>
@@ -96,12 +99,12 @@
 </template>
 
 <script>
-import { logout } from "@/firebase";
-
 export default {
   name: "Navbar",
   methods: {
-    logout
+    logout() {
+      this.$store.dispatch("user/logout");
+    }
   },
   data: () => ({
     links: ["Dashboard", "Messages", "Profile", "Updates"],
