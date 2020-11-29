@@ -1,4 +1,5 @@
 var admin = require("firebase-admin");
+const fs = require("fs");
 var serviceAccount = require("./service-account.json");
 require("dotenv").config({ path: "./.env.local" });
 
@@ -79,7 +80,17 @@ const createUser = async () => {
       social: social
     };
     const userData = await admin.auth().createUser({ email: data.email });
-    data.uid = userData.uid;
+    data.id = userData.uid;
+    if (argv.save) {
+      fs.mkdir("fixtures/users", { recursive: true }, err => {
+        if (err) throw err;
+      });
+      fs.writeFile(
+        `fixtures/users/${data.username}.json`,
+        JSON.stringify(data),
+        () => {}
+      );
+    }
     db.collection("users")
       .doc(username)
       .set(data);
@@ -149,7 +160,22 @@ const createSession = async users => {
       visible: [],
       kicked: []
     };
-    await db.collection(`conferences/${conference}/sessions`).add(sessionData);
+    const data = await db
+      .collection(`conferences/${conference}/sessions`)
+      .add(sessionData);
+    sessionData.startTimeMillis = new Date(times[startTimeNum].start).getTime();
+    sessionData.endTimeMillis = new Date(times[endTimeNum].end).getTime();
+    sessionData.id = data.id;
+    if (argv.save) {
+      fs.mkdir("fixtures/sessions", { recursive: true }, err => {
+        if (err) throw err;
+      });
+      fs.writeFile(
+        `fixtures/sessions/${sessionData.slug}.json`,
+        JSON.stringify(sessionData),
+        () => {}
+      );
+    }
     return;
   } catch (error) {
     console.log(error.message);
@@ -169,18 +195,21 @@ const createConference = async () => {
     const tag = hacker.noun();
     tags.push(`${tag.slice(0, 1).toUpperCase()}${tag.slice(1)}`);
   }
+  const conferenceData = {
+    name: `${tags[0]} Online`,
+    startTime: TimeStamp.fromMillis(startTime),
+    startTimeMillis: startTime,
+    endTime: TimeStamp.fromMillis(endTime),
+    endTimeMillis: endTime,
+    tags,
+    blockLength,
+    numBlocks
+  };
   try {
     await db
       .collection("conferences")
       .doc(conference)
-      .set({
-        name: `${tags[0]} Online`,
-        startTime: TimeStamp.fromMillis(startTime),
-        endTime: TimeStamp.fromMillis(endTime),
-        tags,
-        blockLength,
-        numBlocks
-      });
+      .set(conferenceData);
     db.collection("users")
       .get()
       .then(users => {
@@ -190,6 +219,16 @@ const createConference = async () => {
       });
   } catch (error) {
     console.log(error.message);
+  }
+  if (argv.save) {
+    fs.mkdir("fixtures/conferences", { recursive: true }, err => {
+      if (err) throw err;
+    });
+    fs.writeFile(
+      `fixtures/conferences/${conference}.json`,
+      JSON.stringify(conferenceData),
+      () => {}
+    );
   }
 };
 

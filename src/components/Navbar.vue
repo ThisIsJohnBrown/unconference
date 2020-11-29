@@ -14,6 +14,7 @@
           :to="{ name: item.to }"
           :title="item.title"
           text
+          :data-cy="item.cy"
           >{{ item.text }}</v-btn
         >
       </v-toolbar-items>
@@ -115,25 +116,29 @@ export default {
         text: "Sessions",
         to: "Sessions",
         title: "See all sessions",
-        active: false
+        active: false,
+        cy: "navbar-sessions-button"
       },
       {
         text: "About",
         to: "About",
         title: "About",
-        active: false
+        active: false,
+        cy: "navbar-about-button"
       },
       {
         text: "Create",
         to: "Create",
         title: "Create",
-        active: false
+        active: false,
+        cy: "navbar-create-button"
       },
       {
         text: "Code of Conduct",
         to: "CodeOfConduct",
         title: "Our code of conduct",
-        active: false
+        active: false,
+        cy: "navbar-codeofconduct-button"
       }
     ]
   }),

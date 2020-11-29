@@ -3,18 +3,13 @@
 const JEREMIE_UID = "9VDNCG2ysfpUYvc3L7xw8sOB0kuE";
 const conference = "local";
 
-beforeEach(() => {
-  cy.createConference(conference);
-  cy.createUser(JEREMIE_UID);
-  cy.visit("/");
-  cy.logoutUser();
-  cy.loginUser("jeremie@goodplace.com", "asdfasdf");
-  cy.visit("/me");
-});
-
-describe("Log in User", () => {
+describe("Edit profile", () => {
   beforeEach(() => {
-    // cy.logoutUser();
+    cy.createConference(conference, "vuejs-online");
+    cy.createUser(JEREMIE_UID, "jeremie-bearimy");
+    cy.visit("/");
+    cy.loginUser("jeremie@goodplace.com", "asdfasdf");
+    cy.visit("/me");
   });
   it("Change display name for user", () => {
     const newDisplayName = "Zak";

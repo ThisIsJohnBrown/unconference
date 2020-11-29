@@ -5,10 +5,11 @@
         <h2
           class="text-h3 ml-4 pl-4 mt-4"
           v-if="organizedSessions.current.length"
+          data-cy="sessions-current"
         >
           Current sessions
         </h2>
-        <h2 class="text-h3 ml-4 pl-4 mt-4" v-else>
+        <h2 class="text-h3 ml-4 pl-4 mt-4" data-cy="no-sessions-current" v-else>
           No sessions currently active
         </h2>
         <SessionsList
@@ -45,6 +46,9 @@ import SessionsList from "@/components/SessionsList";
 export default {
   name: "Sessions",
   computed: {
+    isBeforeAllSessions() {
+      return new Date().getTime() < this.conference.startTime.seconds * 1000;
+    },
     organizedSessions() {
       if (this.sessions) {
         const now = new Date();
@@ -95,11 +99,17 @@ export default {
         return [];
       }
     },
+    conference() {
+      return this.$store.getters[`conferences/conference`];
+    },
     sessions() {
       return this.$store.state.sessions.sessions?.length
         ? this.$store.state.sessions.sessions
         : [];
     }
+  },
+  mounted() {
+    setInterval(() => console.log(new Date()), 1000);
   },
   components: {
     SessionsList

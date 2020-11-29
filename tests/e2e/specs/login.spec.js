@@ -1,24 +1,24 @@
 /// <reference types="Cypress" />
 
 const conference = "local";
+const creds = {
+  email: "jeremie@goodplace.com",
+  password: "asdfasdf"
+};
 
-beforeEach(() => {
-  cy.createConference(conference, "vuejs-online");
-  cy.visit("/");
-  cy.logoutUser();
-});
-
-describe("Log in User", () => {
+describe("Login Features", () => {
   beforeEach(() => {
-    // cy.logoutUser();
+    cy.createConference(conference, "vuejs-online");
+    cy.visit("/");
+    cy.logoutUser();
   });
   it("Log in a user", () => {
     cy.get("[data-cy=navbar-profile-button]").should("not.exist");
     cy.get("[data-cy=navbar-login-button]")
       .should("exist")
       .click();
-    cy.get("[data-cy=form-login-email]").type("jeremie@goodplace.com");
-    cy.get("[data-cy=form-login-password]").type("asdfasdf");
+    cy.get("[data-cy=form-login-email]").type(creds.email);
+    cy.get("[data-cy=form-login-password]").type(creds.password);
     cy.get("[data-cy=form-login-submit]").click();
     cy.get("[data-cy=navbar-profile-button]").should("exist");
   });

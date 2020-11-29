@@ -5,6 +5,9 @@
         <v-img :src="shapes[0]" class="ma-6"></v-img>
         <h1 class="text-h3 ma-6 text-md-h1">unconference</h1>
         <h2 class="text-h4 text-md-h3" v-if="conference">{{ prettyDate }}</h2>
+        <h2 data-cy="coming-soon-banner" v-if="isBefore">Coming Soon!</h2>
+        <h2 data-cy="over-banner" v-else>This is over.</h2>
+        <p>{{ new Date() }}</p>
         <v-img :src="shapes[1]" class="ma-6"></v-img>
       </v-row>
     </v-container>
@@ -116,11 +119,13 @@ export default {
     },
     prettyDate() {
       return Object.keys(this.conference).length
-        ? this.getPrettyDate(
-            this.conference?.startTime,
-            this.conference?.endTime
-          )
+        ? this.getPrettyDate(this.conference.startTime, this.conference.endTime)
         : "";
+    },
+    isBefore() {
+      return Object.keys(this.conference).length
+        ? this.conference.startTime.seconds * 1000 > new Date().getTime()
+        : false;
     }
   },
   components: {}

@@ -42,9 +42,12 @@
         <SessionWatcherPanel
           v-bind:hasJoined="hasJoined"
           @joinSession="joinSession"
-          v-if="!isOwner"
+          v-if="!isOwner && isAuthenticated"
           v-bind:participantId="participantId"
         />
+        <div v-if="!isAuthenticated" data-cy="session-register-panel">
+          Please register to join!
+        </div>
       </v-col>
       <v-col>
         <v-card outlined v-if="tempToggle">
@@ -309,6 +312,9 @@ export default {
     isActive() {
       return this.session?.active;
     },
+    isAuthenticated() {
+      return this.$store.getters[`user/isAuthenticated`];
+    },
     isBefore() {
       return (
         !this.isActive && !this.session.activeTime && this.endTime > new Date()
@@ -336,14 +342,14 @@ export default {
     }
   },
   watch: {
-    // async conference() {
-    //   this.slug = this.$route.params.slug;
-    //   try {
-    //     await this.$store.dispatch("bindSession", this.slug);
-    //   } catch (error) {
-    //     console.error(error.message);
-    //   }
-    // },
+    async conference() {
+      this.slug = this.$route.params.slug;
+      try {
+        await this.$store.dispatch("bindSession", this.slug);
+      } catch (error) {
+        console.error(error.message);
+      }
+    },
     isActive(newActive, oldActive) {
       if (oldActive === true && newActive === false) {
         this.tempToggle = true;

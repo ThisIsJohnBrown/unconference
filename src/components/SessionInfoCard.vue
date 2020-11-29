@@ -1,6 +1,6 @@
 <template>
   <v-badge bordered :color="badgeColor" content="" overlap>
-    <v-card outlined tile class="mx-auto">
+    <v-card outlined tile class="mx-auto" data-cy="session-info-card">
       <!-- <v-img
       src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
       height="200px"
