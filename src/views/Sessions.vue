@@ -108,9 +108,6 @@ export default {
         : [];
     }
   },
-  mounted() {
-    setInterval(() => console.log(new Date()), 1000);
-  },
   components: {
     SessionsList
   }

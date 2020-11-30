@@ -34,14 +34,14 @@ export default {
     },
     updateSession: (context, payload) => {
       db.collection(
-        `conferences/${context.state.conferences.conference.id}/sessions`
+        `conferences/${context.rootState.conferences.conference.id}/sessions`
       )
         .doc(payload.id)
-        .set(payload.data, { merge: true });
+        .set(Object.assign({}, payload.data), { merge: true });
     },
     deleteSession: (context, payload) => {
       db.collection(
-        `conferences/${context.state.conferences.conference.id}/sessions`
+        `conferences/${context.rootState.conferences.conference.id}/sessions`
       )
         .doc(payload)
         .delete();

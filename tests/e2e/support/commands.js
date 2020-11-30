@@ -1,6 +1,5 @@
 /// <reference types="Cypress" />
 
-import faker from "faker";
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
@@ -32,50 +31,54 @@ Cypress.Commands.add("logoutUser", () => {
   cy.get("[data-cy=navbar-profile-button").should("not.exist");
 });
 
-Cypress.Commands.add("createUsers", fixtures => {
+Cypress.Commands.add("createUsers", (id, fixtures) => {
   fixtures.forEach(fix => {
-    cy.fixture(`users/${fix}.json`).then(data => {
+    cy.fixture(`conferences/${id}/users/${fix}`).then(data => {
       cy.callFirestore("set", `users/${data.id}`, data);
     });
   });
 });
 
 Cypress.Commands.add("createSessions", (id, fixtures) => {
-  console.log(id, fixtures);
   fixtures.forEach(fix => {
-    cy.fixture(`sessions/${fix}.json`).then(data => {
+    cy.fixture(`conferences/${id}/sessions/${fix}`).then(async data => {
       data.startTime = firebase.firestore.Timestamp.fromMillis(
         data.startTimeMillis
       );
       data.endTime = firebase.firestore.Timestamp.fromMillis(
         data.endTimeMillis
       );
-      console.log(data);
       cy.callFirestore("set", `conferences/${id}/sessions/${data.id}`, data);
     });
   });
 });
 
-Cypress.Commands.add("createConference", (conference, fix) => {
-  cy.fixture(`conferences/${fix}.json`).then(data => {
+Cypress.Commands.add("createConference", conferenceName => {
+  cy.callFirestore("delete", `conferences/${conferenceName}/sessions`, {
+    recursive: true
+  });
+  cy.callFirestore("delete", `conferences`, { recursive: true });
+  cy.callFirestore("delete", `users`, { recursive: true });
+  cy.fixture(`conferences/${conferenceName}/conference.json`).then(data => {
     data.startTime = firebase.firestore.Timestamp.fromMillis(
       data.startTimeMillis
     );
     data.endTime = firebase.firestore.Timestamp.fromMillis(data.endTimeMillis);
-    cy.callFirestore("set", `conferences/${conference}`, data);
-
-    cy.callFirestore("get", `conferences/${conference}/sessions`).then(
-      sessions => {
-        if (sessions) {
-          sessions.forEach(session => {
-            cy.callFirestore(
-              "delete",
-              `conferences/${conference}/sessions/${session.id}`
-            );
-          });
-        }
-      }
-    );
+    cy.callFirestore("set", `conferences/${conferenceName}`, data);
+    cy.task(
+      "readDirectoryOfFixtures",
+      `fixtures/conferences/${conferenceName}/users`,
+      { log: false }
+    ).then(users => {
+      cy.createUsers(conferenceName, users);
+    });
+    cy.task(
+      "readDirectoryOfFixtures",
+      `fixtures/conferences/${conferenceName}/sessions`,
+      { log: false }
+    ).then(sessions => {
+      cy.createSessions(conferenceName, sessions);
+    });
   });
 });
 

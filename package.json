@@ -8,13 +8,12 @@
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
     "emulators:saved": "kill -9 $(lsof -ti tcp:8080); firebase emulators:start --import=./emulator-data --export-on-exit",
-    "emulators":"kill -9 $(lsof -ti tcp:8080); firebase emulators:start",
+    "emulators": "kill -9 $(lsof -ti tcp:8080); firebase emulators:start",
     "test:open": "cypress open",
     "test:emulate": "cross-env FIREBASE_AUTH_EMULATOR_HOST=\"localhost:9099\" yarn test:open",
     "generate": "node generators.js",
     "test:firestore": "mocha tests/firestore/**/*.js",
     "testwhy": "why-is-node-running ./node_modules/.bin/mocha tests/firestore/**/*.js"
-
   },
   "dependencies": {
     "core-js": "^3.6.5",
